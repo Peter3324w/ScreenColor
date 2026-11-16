@@ -65,3 +65,17 @@ Timed previews persist their prior enabled state and retain their timer during p
 ## Deferred capability
 
 Version one uses the proven global RGB matrix only. Gamma, independent shadow/highlight curves, selective vibrance, per-display correction, hardware brightness, HDR and application-specific automation are not implemented or implied by the UI.
+
+## Windows installer verification — 16 November 2026
+
+The earlier sandbox automation limits above are historical. Verification under Peter's current account now completed:
+
+- `node --test test/*.test.cjs`: 21 passed, zero failures, including startup paths, backup recovery, selected-profile reload and enabled-intent recovery after engine failure.
+- `node scripts/smoke.cjs`: 19 UI/IPC checks passed using isolated data and a mock engine.
+- `node scripts/build.cjs`: NSIS x64 installer built successfully using cached Electron 33.4.11 and electron-builder 25.1.8; no runtime downloads. Installer is unsigned.
+- `node scripts/smoke.cjs '.\release\win-unpacked\Screen Color.exe'`: 19 packaged UI/IPC checks passed. The launcher now resolves executable paths absolutely: alternating absolute-path launches passed while relative backslash paths exited with native breakpoint 0x80000003 before Electron ready. This was an invocation-path failure; no sandbox relaxation or diagnostic flags are shipped as a workaround.
+- `native/bin/ColorHost.exe --probe`: native set/readback/restore verified. The packaged helper SHA256 matches the compiled helper.
+- Final release review found no remaining important blockers. Startup defaults on, honors a retained opt-out marker on upgrades, and removes startup registration on uninstall while retaining user data. Recovery originals and warning survive the first automatic startup preference write.
+- Actual installation, Windows sign-out/reboot and subjective panel appearance have not been automated. Packaged smoke uses a mock engine and does not prove physical image quality or sign-in execution.
+
+Installer: `release/Screen-Color-Setup-0.1.0-x64.exe`, 82,539,049 bytes. SHA256: `11E166EDEDE1F1BE8E19998D490DCC08916A3A24DB3FC78A79C323BA69909E01`.
