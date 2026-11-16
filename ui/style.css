@@ -45,6 +45,8 @@ nav { display: grid; gap: 4px; }
 main { min-width: 0; }
 .topbar { min-height: 68px; border-bottom: 1px solid var(--stroke-soft); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-page); gap: 16px; }
 .topbar #connection { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.topbar-actions { display: flex; align-items: center; gap: 20px; }
+.topbar-actions > .quiet-button { padding: 6px 11px; font-size: 12px; }
 .status-dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; display: inline-block; }
 .status-dot.connected { background: var(--green); }
 .effect-toggle { display: flex; align-items: center; gap: 12px; border: 0; background: none; padding: 8px 0; font-size: 13px; font-weight: 500; }

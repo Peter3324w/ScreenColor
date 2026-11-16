@@ -1,5 +1,12 @@
 # Verification — 16 November 2026
 
+## Compact tray popup
+
+- 15 Node tests pass, including tray popup placement above/below taskbars, missing bounds, negative display coordinates and small work areas.
+- Expanded Electron mock-engine smoke verifies the real compact window, always-on-top state, shared theme, popup-to-controller-to-full-app slider state, pin persistence on blur, unpinned dismissal, hide-without-disabling, full-app switching and recovered-settings warnings. The warning check was observed failing before its UI fix.
+- Full browser feature and PlayTime design checks continue to pass. Real popup appearance was inspected from its Electron capture; default panel fits without a scrollbar at 364 × 548.
+- Native engine code was unchanged; no physical desktop effect was applied by these smoke checks.
+
 ## PlayTime design-system transfer
 
 - 13 Node tests, complete browser feature checks and the Electron mock-engine smoke check pass after the styling transfer.

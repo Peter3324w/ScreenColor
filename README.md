@@ -8,9 +8,11 @@ The interface uses [PlayTime's design system](docs/design-system.md): its five t
 
 1. Close all old `ColorTest`, `ColorTest-Live` and `ColorTest-Range` windows. Their temporary effects are separate from this app.
 2. Double-click **Start-Screen-Color.cmd** in this folder.
-3. Choose **Apply reference** for the accepted starting point: saturation 139%, contrast 115%, warmth 100.
+3. The compact quick-controls popup opens first. Choose **Peter reference** from its Profile list for the accepted starting point: saturation 139%, contrast 115%, warmth 100. Choose **Open full app** for the larger workspace.
 
-There is no mandatory preview timeout. The effect stays enabled until you turn it off or quit. Closing the window keeps it in the tray by default. Use Settings → **Quit and restore original colors**, or Quit in the tray menu, to restore the captured original matrix. If you disable **Keep running when closed**, closing quits and restores instead.
+There is no mandatory preview timeout. The effect stays enabled until you turn it off or quit. Click the Windows system-tray icon for quick controls; double-click it for the full app. The popup hides when you click away unless its lock/pin button is selected. When pinned it stays above other windows, and its header can be dragged. Its close button and Escape hide the popup without turning off your colors.
+
+Closing the full app keeps it in the tray by default. Use Settings → **Quit and restore original colors**, or Quit in the tray menu, to restore the captured original matrix. If you disable **Keep running when closed**, closing the full app quits and restores instead. The full app's **Quick controls** button returns to the compact panel. Windows sign-in startup remains quiet in the tray.
 
 The global reset shortcut is Ctrl+Alt+F12 when available; some Windows environments cannot register it. The effect toggle and tray menu remain available.
 

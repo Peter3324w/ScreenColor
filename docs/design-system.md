@@ -11,7 +11,7 @@ Read-only source: `C:\Users\peter\Projects\Playtime`, `dev` at `a85c4b52b9fee1c7
 - `styles/05-sidebar.css`: 224px desktop sidebar; 11px active navigation radius; 11px/14px row padding; 13px icon gap; 14px navigation type; 16px/12px brand hierarchy. Narrow Screen Color windows retain their supported compact layout instead of inheriting PlayTime's unrelated 940px minimum window requirement.
 - `styles/06-shell-chrome.css`: 30px/700 page titles, 24px page spacing, 10px buttons, primary 10px/18px padding, secondary 9px/15px glass controls, inset sheens and state transitions.
 - `styles/11-settings-modals.css`: 16px cards, 22px/24px card padding, 14px setting rows, 46px × 26px switches with 20px knobs, and 18px dialogs. Screen Color's own controls are restyled to these same measurements. The `--space-*` aliases in its stylesheet name these observed measurements; they are not presented as pre-existing PlayTime spacing tokens.
-- Iconsax React 0.0.8: 13 exact icon families exported from PlayTime's installed package into static SVGs in `ui/icons.js`. Navigation uses Linear when inactive and Bulk when selected, as PlayTime does. No React dependency or download is needed at runtime. MIT notice is retained in `licenses/iconsax-react-LICENSE.txt`.
+- Iconsax React 0.0.8: 15 exact icon families exported from PlayTime's installed package into static SVGs in `ui/icons.js`, including the quick-panel lock and expand controls. Navigation uses Linear when inactive and Bulk when selected, as PlayTime does. No React dependency or download is needed at runtime. MIT notice is retained in `licenses/iconsax-react-LICENSE.txt`.
 
 ## Use
 

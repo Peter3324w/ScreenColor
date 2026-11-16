@@ -43,6 +43,7 @@ function render(){
  $('#profile-label').textContent=state.profileId==='reference'?'Peter reference':state.profileId==='neutral'?'Neutral':state.profiles.find(p=>p.id===state.profileId)?.name||'Custom adjustments';
  $('#saved-status').textContent=!desktop?'Preview only · no desktop changes':state.error?'Change could not be applied':state.previewUntil?'Timed preview active':'Saved on this PC';
  $('#reference').disabled=!state.ready;$('#timed-preview').disabled=!state.ready||!desktop;$('#reset-all').disabled=!state.ready;
+ $('#open-quick-controls').disabled=!desktop;$('#open-quick-controls').title=desktop?'Open compact controls over your desktop':'Quick controls are available in the Electron app.';
  $('#startup').checked=state.startupActual||false;$('#startup').disabled=!desktop;$('#minimize').checked=state.preferences.minimizeToTray;$('#minimize').disabled=!desktop;
  $('#shortcut-description').textContent=state.shortcutAvailable?'Press the shortcut from any app to turn the effect off.':'Shortcut unavailable. Use the effect switch or the tray menu.';
  $('#display-info').textContent=state.displays?.length?state.displays.map(d=>`${d.name} · ${d.width} × ${d.height}`).join('\n'):'One look across your desktop';
@@ -61,6 +62,7 @@ function showView(name){currentView=name;for(const view of document.querySelecto
 setupControls();for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>showView(button.dataset.view));
 $('#effect-toggle').addEventListener('click',()=>action('toggle',!state.enabled));$('#reference').addEventListener('click',()=>action('preset','reference'));$('#reset-all').addEventListener('click',()=>action('reset'));$('#timed-preview').addEventListener('click',()=>action('preview'));$('#retry').addEventListener('click',()=>action('retry'));
 $('#preview-original').addEventListener('click',()=>action('toggle',false));$('#preview-adjusted').addEventListener('click',()=>action('toggle',true));
+$('#open-quick-controls').addEventListener('click',()=>action('openPopup'));
 $('#startup').addEventListener('change',()=>action('preferences',{startup:$('#startup').checked,minimizeToTray:state.preferences.minimizeToTray}));$('#minimize').addEventListener('change',()=>action('preferences',{startup:state.startupActual||false,minimizeToTray:$('#minimize').checked}));$('#quit').addEventListener('click',()=>action('quit'));
 function openProfileDialog(){$('#profile-error').textContent='';$('#profile-name').value='';$('#profile-dialog').showModal();$('#profile-name').focus();}
 $('#save-profile').addEventListener('click',openProfileDialog);$('#save-profile-alt').addEventListener('click',openProfileDialog);$('#cancel-profile').addEventListener('click',()=>$('#profile-dialog').close());

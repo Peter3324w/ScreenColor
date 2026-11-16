@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Screen Color quick controls</title><link rel="stylesheet" href="playtime-tokens.css"><link rel="stylesheet" href="popup.css"><script src="playtime-appearance.js" defer></script><script src="icons.js" defer></script><script src="popup.js" defer></script></head>
+<body><main class="quick-panel">
+ <header class="quick-header"><span data-icon="Colorfilter" data-variant="Bulk" aria-hidden="true"></span><div><h1>Screen Color</h1><p>Quick controls</p></div><button id="quick-pin" class="icon-button" aria-pressed="false" title="Keep open above other windows" aria-label="Keep open above other windows"><span data-icon="Lock1" aria-hidden="true"></span></button><button id="quick-close" class="icon-button" title="Hide quick controls" aria-label="Hide quick controls"><span data-icon="CloseCircle" aria-hidden="true"></span></button></header>
+ <section class="quick-body">
+  <div class="quick-status"><span id="quick-status">Connecting…</span><button id="quick-toggle" role="switch" aria-checked="false" aria-label="Color effect"><span class="toggle-track" aria-hidden="true"><span></span></span></button></div>
+  <p id="quick-error" class="quick-error" role="alert" hidden></p><button id="quick-retry" class="link-button" hidden>Retry color engine</button>
+  <p id="quick-warning" class="quick-warning" role="status" hidden></p>
+  <label class="quick-profile-label" for="quick-profile">Profile</label><select id="quick-profile" aria-label="Color profile"><option value="neutral">Neutral</option><option value="reference">Peter reference</option></select>
+  <div id="quick-controls" aria-label="Quick color adjustments"></div>
+ </section>
+ <footer><button id="quick-original" class="soft-button"><span data-icon="Refresh" aria-hidden="true"></span>Original</button><button id="quick-open-full" class="primary-button"><span data-icon="Maximize4" aria-hidden="true"></span>Open full app</button></footer>
+ <p id="quick-hint" class="quick-hint">Click away to hide. Pin to keep it open.</p>
+ </main></body></html>
