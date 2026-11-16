@@ -16,6 +16,8 @@ Closing the full app keeps it in the tray by default. Use Settings → **Quit an
 
 The global reset shortcut is Ctrl+Alt+F12 when available; some Windows environments cannot register it. The effect toggle and tray menu remain available.
 
+To keep a new look directly from the toolbar, adjust the sliders, click **Save as profile** beside the Profile label, enter a name and click **Save profile**. It becomes selected in the toolbar list and is also available in the full app, including after reopening.
+
 ## What works in version one
 
 - Live saturation 0–200%, contrast 80–140%, warmth -300 to +300, software brightness 80–120% and tint -100 to +100.

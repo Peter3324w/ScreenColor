@@ -1,5 +1,9 @@
 # Verification — 16 November 2026
 
+## Save profiles from quick controls
+
+Toolbar Save as profile uses the existing validated store. Electron smoke verifies that the latest slider value is saved and selected, a fresh disk read contains that profile, the toolbar keeps its selection through reload, whitespace names show an inline error, Cancel does not save, and Escape closes the naming dialog without hiding the toolbar. The new save flow was observed failing before the UI existed. All 17 Node tests remain green. Popup dimensions and native color processing are unchanged.
+
 ## Engine reconnect fix
 
 The first actual toolbar launch failed while ColorTest-Range was still active. The old experiment was subsequently closed, but the running app kept its unavailable state. Bridge startup rejection could also leave an unready child reusable and overwrite the actionable failure with a later generic exit message.

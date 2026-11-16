@@ -6,9 +6,11 @@
   <div class="quick-status"><span id="quick-status">Connecting…</span><button id="quick-toggle" role="switch" aria-checked="false" aria-label="Color effect"><span class="toggle-track" aria-hidden="true"><span></span></span></button></div>
   <p id="quick-error" class="quick-error" role="alert" hidden></p><button id="quick-retry" class="link-button" hidden>Retry color engine</button>
   <p id="quick-warning" class="quick-warning" role="status" hidden></p>
-  <label class="quick-profile-label" for="quick-profile">Profile</label><select id="quick-profile" aria-label="Color profile"><option value="neutral">Neutral</option><option value="reference">Peter reference</option></select>
+  <div class="quick-profile-heading"><label class="quick-profile-label" for="quick-profile">Profile</label><button id="quick-save-profile" class="quick-save-button"><span data-icon="SaveAdd" aria-hidden="true"></span>Save as profile</button></div><select id="quick-profile" aria-label="Color profile"><option value="neutral">Neutral</option><option value="reference">Peter reference</option></select>
   <div id="quick-controls" aria-label="Quick color adjustments"></div>
  </section>
  <footer><button id="quick-original" class="soft-button"><span data-icon="Refresh" aria-hidden="true"></span>Original</button><button id="quick-open-full" class="primary-button"><span data-icon="Maximize4" aria-hidden="true"></span>Open full app</button></footer>
  <p id="quick-hint" class="quick-hint">Click away to hide. Pin to keep it open.</p>
- </main></body></html>
+ </main>
+ <dialog id="quick-profile-dialog"><form id="quick-profile-form"><h2>Save your adjustments</h2><p>Keep this look in your profile list.</p><label for="quick-profile-name">Profile name</label><input id="quick-profile-name" type="text" maxlength="64" required placeholder="Evening colors" autocomplete="off"><p id="quick-profile-error" role="alert"></p><div class="quick-dialog-actions"><button id="quick-profile-cancel" type="button" class="soft-button">Cancel</button><button id="quick-profile-confirm" type="submit" class="primary-button">Save profile</button></div></form></dialog>
+ </body></html>
