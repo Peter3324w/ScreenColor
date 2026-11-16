@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' http://localhost:*; object-src 'none'; base-uri 'none'; form-action 'none'">
+ <title>Screen Color</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
+</head>
+<body>
+ <div class="app-shell">
+  <aside class="sidebar">
+   <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Screen Color<small>Make yourself at home.</small></span></div>
+   <nav aria-label="Main navigation">
+    <button class="nav-item selected" data-view="adjustments"><span aria-hidden="true">☷</span> Adjustments</button>
+    <button class="nav-item" data-view="profiles"><span aria-hidden="true">▧</span> Profiles</button>
+    <button class="nav-item" data-view="settings"><span aria-hidden="true">⚙</span> Settings</button>
+   </nav>
+   <div class="sidebar-bottom"><span class="monitor-symbol" aria-hidden="true">▱</span><strong>All displays</strong><p id="display-info">Desktop color controls</p><span class="version">Local development · v0.1</span></div>
+  </aside>
+  <main>
+   <header class="topbar"><span id="connection"><i class="status-dot"></i>Connecting to color engine</span><button id="effect-toggle" class="effect-toggle" role="switch" aria-checked="false"><span id="effect-text">Effect off</span><span class="switch-track" aria-hidden="true"><span></span></span></button></header>
+   <div id="preview-notice" class="notice" hidden>Browser preview. Open the Electron app to change desktop colors.</div>
+   <div id="error-banner" class="notice error" role="alert" hidden><span id="error-text"></span><button id="retry" class="text-button">Retry engine</button></div>
+   <div id="warning-banner" class="notice" role="status" hidden></div>
+   <section id="view-adjustments" class="view">
+    <div class="page-heading"><div><h1>Color adjustments</h1><p>A richer picture. On your terms.</p></div><button id="reset-all" class="quiet-button">Reset all</button></div>
+    <div class="workspace">
+     <section class="controls-panel" aria-label="Color controls"><div class="section-heading"><h2>Fine-tune your screen</h2><span id="profile-label">Neutral</span></div><div id="controls"></div><p class="helper-copy">Changes apply as you drag. Your chosen look stays on until you turn it off.</p></section>
+     <aside class="reference-panel">
+      <h2>Find your balance</h2><p>Watch the colors you care about.</p>
+      <div class="color-study" aria-label="Purple, green and orange color reference"><div class="study-purple"><span>Purple depth</span></div><div class="study-row"><div class="study-green"><span>Green glow</span></div><div class="study-orange"><span>Orange warmth</span></div></div></div>
+      <div class="grayscale" aria-label="Grayscale steps from black to white"></div><p class="caption">Keep neighboring shades distinguishable.</p>
+      <div class="reference-preset"><span class="small-label">Your starting point</span><h3>Peter reference</h3><p>The look you liked in the experiment.</p><button id="reference" class="accent-button">Apply reference</button></div>
+      <button id="timed-preview" class="quiet-button full-width">Preview for 60 seconds</button><p id="preview-description" class="caption">Optional. Returns to the previous on/off state.</p>
+     </aside>
+    </div>
+    <footer class="page-footer"><span id="saved-status" role="status">Settings saved on this PC</span><button id="save-profile" class="text-button">Save as profile</button></footer>
+   </section>
+   <section id="view-profiles" class="view" hidden><div class="page-heading"><div><h1>Your looks</h1><p>A familiar starting point for every mood.</p></div><button id="save-profile-alt" class="accent-button">Save current look</button></div><div id="profile-list" class="profile-list"></div><p class="helper-copy">Profiles stay on this PC. Applying Neutral restores the screen's original color effect.</p></section>
+   <section id="view-settings" class="view" hidden><div class="page-heading"><div><h1>Make it yours</h1><p>Quietly there when you need it.</p></div></div>
+    <div class="settings-list">
+     <label class="setting-row"><span><strong>Start with Windows</strong><small>Open quietly in the tray when you sign in.</small></span><input type="checkbox" id="startup"></label>
+     <label class="setting-row"><span><strong>Keep running when closed</strong><small>Closing the window keeps your colors active in the tray.</small></span><input type="checkbox" id="minimize"></label>
+     <div class="setting-row"><span><strong>Restore original colors</strong><small id="shortcut-description">Use the effect switch or the tray menu.</small></span><kbd>Ctrl + Alt + F12</kbd></div>
+     <div class="setting-note"><h2>About this version</h2><p>Adjustments apply to all displays together, using the desktop color engine tested on your Intel graphics.</p><p>Brightness changes the picture, not the panel's backlight. Warmth is a relative adjustment, not a measured temperature.</p><p>Independent display controls, gamma curves and HDR processing are not included yet.</p><p class="caption">This development app starts from its current source folder and local Electron runtime. Moving either location requires updating Windows startup.</p></div>
+     <button id="quit" class="quiet-button quit-button">Quit and restore original colors</button>
+    </div>
+   </section>
+  </main>
+ </div>
+ <dialog id="profile-dialog"><form id="profile-form"><h2>Keep this look</h2><p>Give your current adjustments a name.</p><label for="profile-name">Profile name</label><input id="profile-name" maxlength="64" required placeholder="Evening wallpaper" autocomplete="off"><p id="profile-error" class="form-error" role="alert"></p><div class="dialog-actions"><button id="cancel-profile" type="button" class="quiet-button">Cancel</button><button type="submit" class="accent-button">Save profile</button></div></form></dialog>
+</body>
+</html>
