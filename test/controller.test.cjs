@@ -24,3 +24,7 @@ test('display reapply and profile saves preserve a temporary preview and its per
  await c.dispatch('saveProfile','While previewing');assert.equal(store.state.enabled,false);assert.ok(c.previewUntil);
  await new Promise(r=>setTimeout(r,90));assert.equal(c.snapshot().enabled,false);await c.close();
 });
+test('temporary engine failures preserve the desired effect through profile saves and reconnect',async()=>{
+ const {c,bridge,store}=setup();await c.init();await c.dispatch('values',REFERENCE);bridge.emit('failure',new Error('Display reconnecting'));assert.equal(c.snapshot().enabled,false);
+ await c.dispatch('saveProfile','Keep my colors');assert.equal(store.state.enabled,true);await c.dispatch('retry');assert.equal(c.snapshot().enabled,true);assert.deepEqual(bridge.calls.at(-1),{command:'apply',values:REFERENCE});await c.close();
+});

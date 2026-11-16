@@ -2,29 +2,40 @@
 
 A Windows desktop color utility built around Peter's successful HP ProBook 450 G4 / Intel HD 620 experiment. Working name, local development version 0.1.
 
+The interface uses [PlayTime's design system](docs/design-system.md): its five themes, custom accent derivation, Iconsax icons, typography, spacing, glass surfaces and component styling. Choose a palette under Settings → Appearance.
+
 ## Open the app
+
+For installation, run `release/Screen-Color-Setup-0.1.0-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
+
+The instructions below launch the development copy.
 
 1. Close all old `ColorTest`, `ColorTest-Live` and `ColorTest-Range` windows. Their temporary effects are separate from this app.
 2. Double-click **Start-Screen-Color.cmd** in this folder.
-3. Choose **Apply reference** for the accepted starting point: saturation 139%, contrast 115%, warmth 100.
+3. The compact quick-controls popup opens first. Choose **Peter reference** from its Profile list for the accepted starting point: saturation 139%, contrast 115%, warmth 100. Choose **Open full app** for the larger workspace.
 
-There is no mandatory preview timeout. The effect stays enabled until you turn it off or quit. Closing the window keeps it in the tray by default. Use Settings → **Quit and restore original colors**, or Quit in the tray menu, to restore the captured original matrix. If you disable **Keep running when closed**, closing quits and restores instead.
+There is no mandatory preview timeout. The effect stays enabled until you turn it off or quit. Click the Windows system-tray icon for quick controls; double-click it for the full app. The popup hides when you click away unless its lock/pin button is selected. When pinned it stays above other windows, and its header can be dragged. Its close button and Escape hide the popup without turning off your colors.
+
+Closing the full app keeps it in the tray by default. Use Settings → **Quit and restore original colors**, or Quit in the tray menu, to restore the captured original matrix. If you disable **Keep running when closed**, closing the full app quits and restores instead. The full app's **Quick controls** button returns to the compact panel. Windows sign-in startup remains quiet in the tray.
 
 The global reset shortcut is Ctrl+Alt+F12 when available; some Windows environments cannot register it. The effect toggle and tray menu remain available.
+
+To keep a new look directly from the toolbar, adjust the sliders, click **Save as profile** beside the Profile label, enter a name and click **Save profile**. It becomes selected in the toolbar list and is also available in the full app, including after reopening.
 
 ## What works in version one
 
 - Live saturation 0–200%, contrast 80–140%, warmth -300 to +300, software brightness 80–120% and tint -100 to +100.
 - Numeric inputs, individual reset, original/adjusted toggle and reset all.
+- A wallpaper preview above the sliders, Original/Adjusted comparison and a local image picker. Selected images stay in this browser/app's IndexedDB and are never uploaded. JPG, PNG, WebP and AVIF are supported up to 20 MB / 40 megapixels. Browser preview simulates the same color matrix on the image only; Electron relies on the desktop effect to avoid double processing.
 - Protected Neutral/Peter reference presets, named local profiles and persistent chosen settings.
 - Tray controls, optional 60-second preview, restoration on exit, native helper recovery and display/resume reapply.
-- An opt-in **Start with Windows** checkbox. It registers the existing Electron runtime with this source folder and `--background`; a localhost server is not required. Keep the runtime/source paths stable. Startup is off until you choose it; this delivery does not enable it for you.
+- **Start with Windows**, enabled by default for the installed app. The development copy registers its existing runtime and source folder only when you opt in; a localhost server is not required.
 
 Changes apply to **all displays together**. Brightness is software picture gain, not panel backlight control. This version does not include per-monitor correction, selective vibrance, gamma, nonlinear shadow/highlight curves, DDC control or HDR processing. It changes preferred appearance; it does not provide measured calibration or OLED blacks.
 
 ## Development without downloads
 
-Requires the existing Windows Node installation and .NET Framework x64 compiler. The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. Reusing a neighbor's runtime is a development convenience, not a distribution strategy; a future authorized package will pin its own maintained runtime.
+Requires the existing Windows Node installation and .NET Framework x64 compiler. The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Run `npm run build:win` to package using local cached build tools, or `npm run build:dir` for an unpacked build.
 
 ```powershell
 node scripts/compile.cjs
@@ -49,7 +60,7 @@ The Electron smoke check uses an explicitly mocked engine and isolated data; it 
 
 ## Data and recovery
 
-Actual app settings: `%APPDATA%\ScreenColor\settings.json`, validated and atomically replaced. Original desktop matrices are journaled under `%APPDATA%\ScreenColor\recovery`. Startup errors are logged to `.local\startup.log` beside the source. Diagnostic captures and automated reports are ignored under `.local/`.
+Actual app settings: `%APPDATA%\ScreenColor\settings.json`, validated and atomically replaced with a flushed write and a `.bak` recovery copy. Profiles, selected adjustments and the intended enabled state survive reopening and temporary engine failures. The development and installed copies share this location, and uninstall keeps it. Original desktop matrices are journaled under `%APPDATA%\ScreenColor\recovery`. Installed startup diagnostics are under `%APPDATA%\ScreenColor\logs`; development diagnostics are under `.local/`. Smoke checks use isolated settings.
 
 Quit cleanly before using a different desktop color tool. A native named mutex, recovery journal and ownership check coordinate restoration if the helper or Electron exits unexpectedly. On failure the interface reports the effect off and offers Retry. It never force-reapplies continuously against competing color tools.
 

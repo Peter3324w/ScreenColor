@@ -3,7 +3,10 @@
   "productName": "Screen Color",
   "version": "0.1.0",
   "private": true,
+  "description": "Live desktop color adjustments with saved profiles and compact tray controls",
+  "author": "Peter",
   "main": "electron/main.cjs",
-  "scripts": { "dev": "node scripts/dev.cjs", "test": "node --test test/*.test.cjs", "native:compile": "node scripts/compile.cjs", "smoke": "node scripts/smoke.cjs" },
+  "scripts": { "dev": "node scripts/dev.cjs", "test": "node --test test/*.test.cjs", "native:compile": "node scripts/compile.cjs", "smoke": "node scripts/smoke.cjs", "build:dir": "node scripts/build.cjs --dir", "build:win": "node scripts/build.cjs" },
+  "devDependencies": { "electron": "33.4.11", "electron-builder": "25.1.8" },
   "engines": { "node": ">=22" }
 }
