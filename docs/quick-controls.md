@@ -4,6 +4,8 @@ Peter requested a small Gapa-style toolbar so users can see their desktop while 
 
 Normal launch opens a 364 × 548 frameless popup. Clicking the tray icon toggles it; double-click or the context menu opens the full app. `--background` continues to start silently at sign-in. `--full-app` opts into the full workspace on a manual launch. The full app has a Quick controls button that hides it and opens the popup.
 
+If an earlier engine connection failed, reopening quick controls automatically retries it. Startup errors retain their actionable cause instead of being replaced by a generic child-exit message.
+
 The panel exposes all five proven controls, editable numeric values, built-in/saved profiles, effect toggle, original-colors button, engine retry and settings warnings. It shares the existing validated IPC/controller/native engine with the full app: no second color transform or duplicate settings store. Both windows receive acknowledged state changes. The popup follows PlayTime theme/accent changes through the shared storage origin.
 
 The popup sits above other windows while open and hides on blur by default. Its lock/pin button keeps it visible when focus changes; the draggable header moves it. Pin state lasts for the current application session. Close and Escape hide it, including when pinned, while colors remain applied. Quitting remains explicit through the existing tray/full-app flow and restores the baseline.

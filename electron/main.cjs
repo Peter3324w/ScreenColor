@@ -15,11 +15,11 @@ app.setPath('userData',smoke?path.join(root,'.local','smoke-user'):path.join(app
 let window,popup,tray,controller,quitting=false,shortcut=false,reapplyTimer,watcher;
 const uiFile=path.join(root,'ui','index.html'),uiURL=pathToFileURL(uiFile).href;
 if(!app.requestSingleInstanceLock()){log('Another instance owns the app lock.');app.quit();}else{
- app.on('second-instance',(_event,argv)=>{if(argv.includes('--full-app'))showWindow();else showPopup();});
+ app.on('second-instance',(_event,argv)=>{if(argv.includes('--full-app'))showWindow();else showPopup().catch(error=>log(error.message));});
  app.whenReady().then(start).catch(error=>{log(error.stack);console.error(error);app.exit(1);});
 }
 function showWindow(){if(!window||window.isDestroyed())return;popup?.hide();if(window.isMinimized())window.restore();window.show();window.focus();}
-async function showPopup(bounds){if(!popup)return;if(window&&!window.isDestroyed())window.hide();await popup.show(bounds||tray?.getBounds());}
+async function showPopup(bounds,reconnect=true){if(!popup)return;if(window&&!window.isDestroyed())window.hide();await popup.show(bounds||tray?.getBounds());if(reconnect&&controller&&!controller.ready)await controller.dispatch('retry');}
 function startupOptions(){return {path:process.execPath,args:[root,'--background'],name:'Screen Color'};}
 function startupEnabled(){try{return app.getLoginItemSettings(startupOptions()).openAtLogin;}catch{return false;}}
 function snapshot(){return {...controller.snapshot(),popupPinned:popup?.pinned||false,startupActual:startupEnabled(),shortcutAvailable:shortcut,development:true,smoke,displays:screen.getAllDisplays().map((d,i)=>({id:d.id,name:d.label||`Display ${i+1}`,width:d.size.width,height:d.size.height}))};}
@@ -37,6 +37,7 @@ async function start(){
  let bridge;
  if(smoke){bridge=new EventEmitter();bridge.start=async()=>{};bridge.request=async()=>({ok:true});bridge.close=async()=>{};}
  else bridge=new NativeBridge(path.join(root,'native','bin','ColorHost.exe'),path.join(app.getPath('userData'),'recovery'));
+ bridge.on('failure',error=>log('Color engine failure: '+error.message));
  controller=new Controller(bridge,new Store(path.join(app.getPath('userData'),'settings.json')));controller.on('state',publish);
  window=new BrowserWindow({width:1020,height:760,minWidth:760,minHeight:620,show:false,title:'Screen Color',backgroundColor:'#000000',autoHideMenuBar:true,icon:icon(),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.webContents.on('will-navigate',(event,url)=>{if(url!==uiURL)event.preventDefault();});
@@ -64,9 +65,9 @@ async function start(){
  powerMonitor.on('resume',reapply);screen.on('display-added',reapply);screen.on('display-removed',reapply);screen.on('display-metrics-changed',reapply);
  watcher=fs.watch(path.join(root,'ui'),(_event,file)=>{if(file&&/\.(html|css|js)$/.test(file)){clearTimeout(start.reloadTimer);start.reloadTimer=setTimeout(()=>{for(const target of [window,popup.window])if(!target.isDestroyed())target.webContents.reloadIgnoringCache();},160);}});
  log('Loading '+uiURL);await Promise.all([window.loadURL(uiURL),popup.ready]);await controller.init();publish();
- log('App ready; color engine ready='+controller.ready);
+ log('App ready; color engine ready='+controller.ready+(controller.error?'; error='+controller.error:''));
  if(!smoke)setTimeout(()=>{if(!window.isDestroyed())window.webContents.capturePage().then(image=>fs.writeFileSync(path.join(root,'.local','app-window.png'),image.toPNG())).catch(error=>log('Capture unavailable: '+error.message));},500);
- if(!process.argv.includes('--background')||controller.error){if(process.argv.includes('--full-app'))showWindow();else await showPopup();}
+ if(!process.argv.includes('--background')||controller.error){if(process.argv.includes('--full-app'))showWindow();else await showPopup(undefined,false);}
  if(smoke)await runSmoke();
 }
 async function runSmoke(){
@@ -79,8 +80,9 @@ async function runSmoke(){
   await new Promise(r=>setTimeout(r,300));if(controller.state.values.saturation!==155)throw new Error('Live slider IPC failed');results.push('renderer slider to main/controller');
   window.webContents.reloadIgnoringCache();await new Promise(resolve=>window.webContents.once('did-finish-load',resolve));await new Promise(r=>setTimeout(r,200));if(controller.state.values.saturation!==155||!controller.state.enabled)throw new Error('Reload lost the active effect');results.push('renderer reload preserves engine state');
   await window.webContents.executeJavaScript(`window.screenColor.action('toggle',false)`);if(controller.state.enabled)throw new Error('Original toggle failed');results.push('original toggle');
-  await showPopup();await new Promise(r=>setTimeout(r,150));
+  popup.setPinned(true);await showPopup();await new Promise(r=>setTimeout(r,150));
   if(!popup.window.isVisible()||window.isVisible()||!popup.window.isAlwaysOnTop())throw new Error('Quick controls did not open over the desktop');results.push('compact always-on-top window hides the full app');
+  controller.ready=false;controller.error='Previous startup failed';publish();await showPopup();if(!controller.ready||controller.error)throw new Error('Popup reopen did not reconnect');results.push('opening quick controls reconnects a failed engine');
   controller.warning='Saved settings could not be read. Started safely with the effect off.';publish();await new Promise(r=>setTimeout(r,100));
   if(!await popup.window.webContents.executeJavaScript(`!!document.querySelector('#quick-warning')&&!document.querySelector('#quick-warning').hidden&&document.querySelector('#quick-warning').textContent.includes('Saved settings')`))throw new Error('Popup did not explain recovered settings');controller.warning=null;publish();results.push('popup displays recovered-settings warnings');
   const previousAppearance=await window.webContents.executeJavaScript(`localStorage.getItem('screen-color-appearance')`);

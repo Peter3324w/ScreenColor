@@ -1,5 +1,15 @@
 # Verification — 16 November 2026
 
+## Engine reconnect fix
+
+The first actual toolbar launch failed while ColorTest-Range was still active. The old experiment was subsequently closed, but the running app kept its unavailable state. Bridge startup rejection could also leave an unready child reusable and overwrite the actionable failure with a later generic exit message.
+
+- Bridge readiness now requires an acknowledged handshake. A failed generation is cleared, reports its first failure once, and cannot overwrite a replacement connection on exit.
+- Opening/reopening quick controls retries an unavailable engine. Initial startup avoids a duplicate retry; explicit Retry remains available.
+- Two regression tests were observed failing before the fixes and passing after. All 17 Node tests pass.
+- Expanded Electron mock smoke passes 15 checks, including automatic popup reconnection. Cross-window smoke work pins its panel to avoid unrelated OS focus changes; dedicated pinned/unpinned blur checks remain.
+- Real native helper handshake, apply/readback and baseline reset passed after closing the old experiment. The actual development app was restarted independently of smoke mode; startup at 14:28:02 UTC confirmed `color engine ready=true`.
+
 ## Compact tray popup
 
 - 15 Node tests pass, including tray popup placement above/below taskbars, missing bounds, negative display coordinates and small work areas.
