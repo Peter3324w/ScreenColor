@@ -16,6 +16,7 @@ The global reset shortcut is Ctrl+Alt+F12 when available; some Windows environme
 
 - Live saturation 0–200%, contrast 80–140%, warmth -300 to +300, software brightness 80–120% and tint -100 to +100.
 - Numeric inputs, individual reset, original/adjusted toggle and reset all.
+- A wallpaper preview above the sliders, Original/Adjusted comparison and a local image picker. Selected images stay in this browser/app's IndexedDB and are never uploaded. JPG, PNG, WebP and AVIF are supported up to 20 MB / 40 megapixels. Browser preview simulates the same color matrix on the image only; Electron relies on the desktop effect to avoid double processing.
 - Protected Neutral/Peter reference presets, named local profiles and persistent chosen settings.
 - Tray controls, optional 60-second preview, restoration on exit, native helper recovery and display/resume reapply.
 - An opt-in **Start with Windows** checkbox. It registers the existing Electron runtime with this source folder and `--background`; a localhost server is not required. Keep the runtime/source paths stable. Startup is off until you choose it; this delivery does not enable it for you.

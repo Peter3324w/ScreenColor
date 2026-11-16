@@ -21,7 +21,7 @@ function setupControls(){
   header.append(label,number,unit,reset);const slider=document.createElement('input');slider.type='range';slider.id=d.key;slider.min=d.min;slider.max=d.max;slider.step=1;slider.value=d.neutral;
   const ends=document.createElement('div');ends.className='range-labels';for(const text of d.ends){const span=document.createElement('span');span.textContent=text;ends.append(span);}
   const help=document.createElement('p');help.className='control-description';help.textContent=d.help;
-  function set(value){const n=Number(value);if(!Number.isFinite(n)||n<d.min||n>d.max)return;draft={...draft,[d.key]:n};number.value=n;slider.value=n;pending={...draft};flush();}
+  function set(value){const n=Number(value);if(!Number.isFinite(n)||n<d.min||n>d.max)return;draft={...draft,[d.key]:n};number.value=n;slider.value=n;window.ImagePreview.update(draft,true,desktop);pending={...draft};flush();}
   slider.addEventListener('input',()=>set(slider.value));number.addEventListener('change',()=>{if(number.value===''||!number.checkValidity()){number.reportValidity();number.value=draft[d.key];return;}set(number.value);});reset.addEventListener('click',()=>set(d.neutral));
   row.append(header,slider,ends,help);$('#controls').append(row);
  }
@@ -46,6 +46,7 @@ function render(){
  $('#startup').checked=state.startupActual||false;$('#startup').disabled=!desktop;$('#minimize').checked=state.preferences.minimizeToTray;$('#minimize').disabled=!desktop;
  $('#shortcut-description').textContent=state.shortcutAvailable?'Press the shortcut from any app to turn the effect off.':'Shortcut unavailable. Use the effect switch or the tray menu.';
  $('#display-info').textContent=state.displays?.length?state.displays.map(d=>`${d.name} · ${d.width} × ${d.height}`).join('\n'):'One look across your desktop';
+ window.ImagePreview.update(draft,state.enabled,desktop);$('#preview-original').disabled=!state.ready;$('#preview-adjusted').disabled=!state.ready;
  renderProfiles();
 }
 function renderProfiles(){
@@ -59,6 +60,7 @@ function renderProfiles(){
 function showView(name){currentView=name;for(const view of document.querySelectorAll('.view'))view.hidden=view.id!=='view-'+name;for(const button of document.querySelectorAll('[data-view]')){const selected=button.dataset.view===name;button.classList.toggle('selected',selected);if(selected)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}}
 setupControls();for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>showView(button.dataset.view));
 $('#effect-toggle').addEventListener('click',()=>action('toggle',!state.enabled));$('#reference').addEventListener('click',()=>action('preset','reference'));$('#reset-all').addEventListener('click',()=>action('reset'));$('#timed-preview').addEventListener('click',()=>action('preview'));$('#retry').addEventListener('click',()=>action('retry'));
+$('#preview-original').addEventListener('click',()=>action('toggle',false));$('#preview-adjusted').addEventListener('click',()=>action('toggle',true));
 $('#startup').addEventListener('change',()=>action('preferences',{startup:$('#startup').checked,minimizeToTray:state.preferences.minimizeToTray}));$('#minimize').addEventListener('change',()=>action('preferences',{startup:state.startupActual||false,minimizeToTray:$('#minimize').checked}));$('#quit').addEventListener('click',()=>action('quit'));
 function openProfileDialog(){$('#profile-error').textContent='';$('#profile-name').value='';$('#profile-dialog').showModal();$('#profile-name').focus();}
 $('#save-profile').addEventListener('click',openProfileDialog);$('#save-profile-alt').addEventListener('click',openProfileDialog);$('#cancel-profile').addEventListener('click',()=>$('#profile-dialog').close());

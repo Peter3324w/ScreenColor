@@ -1,5 +1,15 @@
 # Verification — 16 November 2026
 
+## Image preview follow-up (full access)
+
+After Peter granted full access, Electron and cached Chromium automation both run successfully under his normal account. Earlier sandbox failures below are historical, not current blockers.
+
+- 13 Node tests pass, including SVG matrix channel ordering and the native-preview simulation bypass.
+- Browser check passes: default image loads, Original/Adjusted render different image pixels, saturation changes the image, local image choice survives reload, default image restoration works, profiles/settings still work, and the 760px layout has no horizontal overflow. No page errors.
+- Electron smoke passes its six preload/controller/profile/live-slider/reload/toggle checks with the explicitly mocked engine. This proves Electron UI integration, not physical screen processing or actual sign-in behavior.
+- Matching browser captures for the preview change use 1020 × 820 CSS pixels, scale 1, Adjustments, Peter reference selected, dark theme, full page.
+- Fresh review of the preview change found no critical or important issues. No downloads, packaging or native engine changes were needed.
+
 ## Passed
 
 - `node --test test/*.test.cjs`: 11 tests, 11 passed. Includes strict color ranges/nonfinite inputs, neutral/reference math, gray preservation, versioned settings and malformed-file recovery, atomic persistence, acknowledgment-driven enabled state, apply/disk error restoration, protected/saved profiles, serialized mutations, temporary preview state, and retry after an executable launch failure.
