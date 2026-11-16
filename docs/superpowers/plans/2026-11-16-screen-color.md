@@ -16,25 +16,32 @@ Malformed persisted settings must never silently enable extreme effects. Slider 
 ### Task 1: Color domain and persistence
 Files: `lib/model.cjs`, `lib/store.cjs`, `test/model.test.cjs`, `test/store.test.cjs`, `package.json`.
 Interfaces: `validateValues(input) -> values`, `matrix(values) -> number[25]`, `defaultState() -> state`, `validateState(input) -> state`; `Store(path).load()/save(state)`.
-- [ ] Write failing tests for ranges, reference values, identity/gray preservation, nonfinite inputs, unknown fields, malformed files, atomic roundtrip and profile preservation.
-- [ ] Run `node --test test/*.test.cjs`, implement modules, rerun green, commit.
+- [x] Write failing tests for ranges, reference values, identity/gray preservation, nonfinite inputs, unknown fields, malformed files, atomic roundtrip and profile preservation.
+- [x] Run `node --test test/*.test.cjs`, implement modules, rerun green, commit.
 
 ### Task 2: Native lifecycle and controller
 Files: `native/ColorHost.cs`, `lib/bridge.cjs`, `lib/controller.cjs`, `scripts/compile.cjs`, `test/controller.test.cjs`, `test/bridge.test.cjs`.
 Interfaces: `NativeBridge.start()/request(command)/close()`, `Controller.dispatch(action,payload)/snapshot()/close()`; JSON lines requests `{id,command,values?}` and responses `{id,ok,error?}`.
 - [ ] Write failing tests for apply acknowledgment, coalesced/serialized changes, error disabling, baseline reset, profile mutations, timer restores, helper transport failure and bounded timeouts.
-- [ ] Implement validation in both JS and native host, baseline capture/recovery child, parent monitoring, native probe and single-instance/experiment detection.
-- [ ] Compile development helper, run unit tests and native checks only if experiments closed; commit.
+- [x] Implement validation in both JS and native host, baseline capture/recovery child, parent monitoring, native probe and single-instance/experiment detection.
+- [x] Compile development helper, run unit tests and native API probe; commit. Full crash/replacement execution remains pending a normal-account isolated run.
 
 ### Task 3: Electron shell and renderer
 Files: `electron/main.cjs`, `electron/preload.cjs`, `ui/index.html`, `ui/app.js`, `ui/style.css`, `scripts/dev.cjs`, `scripts/runtime.cjs`, `Start-Screen-Color.cmd`.
 Interfaces: preload `screenColor.getState()/action(type,payload)/subscribe(listener)` with controlled IPC; controller emits state. Renderer changes watch/reload via Electron file watcher. Local preview at localhost offers read-only controls illustration.
-- [ ] Build shell with IPC validation, local load, tray, startup readback, resume/display hooks, hotkey and orderly quit.
-- [ ] Build keyboard-accessible controls, numeric inputs, reference/profile management, persistent effect toggle, Settings and useful error/retry states.
+- [x] Build shell with IPC validation, local load, tray, startup readback, resume/display hooks, hotkey and orderly quit.
+- [x] Build keyboard-accessible controls, numeric inputs, reference/profile management, persistent effect toggle, Settings and useful error/retry states.
 - [ ] Add localhost preview, cached-runtime launcher, native incremental compilation and Electron smoke capture. Run JS parse checks and functional smoke; commit.
 
 ### Task 4: Review, evidence and handoff
 Files: `README.md`, `docs/verification.md`, central UI History record.
-- [ ] Review whole branch with a fresh reviewer; resolve important findings, run full verification once changes settle.
-- [ ] Record evidence, startup not exercised at sign-in, physical quality needing Peter's evaluation; record current commit and screenshots.
-- [ ] Commit verified final work on `dev`; leave runnable launch script and localhost dev preview. Do not launch an invisible desktop instance for Peter.
+- [x] Review whole branch with a fresh reviewer; resolve important findings, run full available verification once changes settle.
+- [x] Record evidence and actual automation limits in docs/verification.md and central UI History; after screenshot explicitly missing.
+- [x] Commit implemented work on `dev`; leave runnable launch script and verified localhost dev preview. No invisible desktop app instance left for Peter.
+
+## Execution rulings and remaining verification
+
+- Continued directly from Peter's explicit request to stop prototype tests and build the actual app; the accepted experiment is the behavioral reference.
+- Reused complete local Electron 33 runtime; no download or packaging. Diagnostic Electron 44 and cached Chromium also could not render under the tool account. Do not disable runtime sandboxes to force a pass.
+- Native probe passed; old experiment guard was exercised and correctly refused competing ColorTest-Range. Native end-to-end and recovery replacement tests need the old experiment closed under Peter's normal account.
+- Renderer/IPC smoke checks are implemented but have not passed in this environment. Normal-account launch and after capture remain pending. These are verification gaps, not completed checkboxes.
