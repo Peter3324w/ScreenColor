@@ -1,5 +1,12 @@
 # Verification — 16 November 2026
 
+## PlayTime design-system transfer
+
+- 13 Node tests, complete browser feature checks and the Electron mock-engine smoke check pass after the styling transfer.
+- New design integration check passes: exact five palette backgrounds, Midnight black/white contrast, all SVG icon placeholders filled, Linear/Bulk selected states, custom accent validation and reload persistence, Auto reset, sticky preview, and no overflow on adjustments/settings at 760px.
+- Matched live before/after browser captures: 1280 × 900 CSS pixels, scale 1, dark, Adjustments at top, Peter reference selected. A Settings appearance capture also records the imported controls.
+- Imported from PlayTime read-only; no source project modifications or dependency downloads. Source mapping and regeneration command are in `docs/design-system.md`.
+
 ## Image preview follow-up (full access)
 
 After Peter granted full access, Electron and cached Chromium automation both run successfully under his normal account. Earlier sandbox failures below are historical, not current blockers.
