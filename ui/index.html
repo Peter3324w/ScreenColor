@@ -32,19 +32,19 @@
        <input id="preview-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden>
        <p id="image-preview-error" class="image-preview-error" role="status" hidden></p>
       </figure>
-      <div class="section-heading"><h2>Fine-tune your screen</h2><span id="profile-label">Neutral</span></div><div id="controls"></div><p class="helper-copy">Changes apply as you drag. Your chosen look stays on until you turn it off.</p>
+      <div class="section-heading"><h2>Fine-tune your screen</h2><span id="profile-label">Default</span></div><div id="controls"></div><p class="helper-copy">Changes apply as you drag. Your chosen look stays on until you turn it off.</p>
      </section>
      <aside class="reference-panel">
       <h2>Find your balance</h2><p>Watch the colors you care about.</p>
       <div class="color-study" aria-label="Purple, green and orange color reference"><div class="study-purple"><span>Purple depth</span></div><div class="study-row"><div class="study-green"><span>Green glow</span></div><div class="study-orange"><span>Orange warmth</span></div></div></div>
       <div class="grayscale" aria-label="Grayscale steps from black to white"></div><p class="caption">Keep neighboring shades distinguishable.</p>
-      <div class="reference-preset"><span class="small-label">Your starting point</span><h3>Peter reference</h3><p>The look you liked in the experiment.</p><button id="reference" class="accent-button"><span data-icon="TickCircle" aria-hidden="true"></span>Apply reference</button></div>
+      <div class="reference-preset"><span class="small-label">Your starting point</span><h3>Custom preset one</h3><p>The look you liked in the experiment.</p><button id="reference" class="accent-button"><span data-icon="TickCircle" aria-hidden="true"></span>Apply preset</button></div>
       <button id="timed-preview" class="quiet-button full-width">Preview for 60 seconds</button><p id="preview-description" class="caption">Optional. Returns to the previous on/off state.</p>
      </aside>
     </div>
     <footer class="page-footer"><span id="saved-status" role="status">Settings saved on this PC</span><button id="save-profile" class="text-button"><span data-icon="SaveAdd" aria-hidden="true"></span>Save as profile</button></footer>
    </section>
-   <section id="view-profiles" class="view" hidden><div class="page-heading"><div><h1>Your looks</h1><p>A familiar starting point for every mood.</p></div><button id="save-profile-alt" class="accent-button"><span data-icon="Add" aria-hidden="true"></span>Save current look</button></div><div id="profile-list" class="profile-list"></div><p class="helper-copy">Profiles stay on this PC. Applying Neutral restores the screen's original color effect.</p></section>
+   <section id="view-profiles" class="view" hidden><div class="page-heading"><div><h1>Your looks</h1><p>A familiar starting point for every mood.</p></div><button id="save-profile-alt" class="accent-button"><span data-icon="Add" aria-hidden="true"></span>Save current look</button></div><div id="profile-list" class="profile-list"></div><p class="helper-copy">Profiles stay on this PC. Applying Default restores the screen's original color effect.</p></section>
    <section id="view-settings" class="view" hidden><div class="page-heading"><div><h1>Make it yours</h1><p>Quietly there when you need it.</p></div></div>
     <div class="settings-list">
      <section class="appearance-card" aria-labelledby="appearance-heading"><div class="appearance-heading"><span data-icon="Colorfilter" aria-hidden="true"></span><div><h2 id="appearance-heading">Appearance</h2><p>The same themes and accents as PlayTime.</p></div></div><div class="appearance-field"><span class="setting-title">Theme</span><div id="theme-picker" class="theme-picker" role="group" aria-label="App theme"></div></div><div class="appearance-field"><label class="setting-title" for="accent-color">Accent color</label><p>The color of selected controls. Auto follows your theme.</p><div class="accent-controls"><button id="accent-auto" class="quiet-button">Auto</button><input id="accent-color" type="color" value="#ffffff" aria-label="Custom accent color"><input id="accent-hex" type="text" maxlength="7" placeholder="#ffffff" aria-label="Accent hex color" spellcheck="false"><div id="accent-presets" class="accent-presets" role="group" aria-label="Popular accent colors"></div></div><p id="appearance-status" class="caption" role="status">Appearance saved on this device.</p></div></section>

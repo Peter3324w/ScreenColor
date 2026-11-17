@@ -40,7 +40,7 @@ function render(){
  const connection=$('#connection');connection.replaceChildren();const dot=document.createElement('i');dot.className='status-dot'+(state.ready?' connected':'');connection.append(dot,document.createTextNode(!desktop?'Browser preview':state.smoke?'Interface smoke test':state.ready?'Color engine connected':'Color engine unavailable'));
  $('#error-banner').hidden=!state.error;if(state.error)$('#error-text').textContent=state.error;$('#retry').hidden=state.ready;
  $('#warning-banner').hidden=!state.warning;if(state.warning)$('#warning-banner').textContent=state.warning;
- $('#profile-label').textContent=state.profileId==='reference'?'Peter reference':state.profileId==='neutral'?'Neutral':state.profiles.find(p=>p.id===state.profileId)?.name||'Custom adjustments';
+ $('#profile-label').textContent=state.profileId==='reference'?'Custom preset one':state.profileId==='neutral'?'Default':state.profiles.find(p=>p.id===state.profileId)?.name||'Custom adjustments';
  $('#saved-status').textContent=!desktop?'Preview only · no desktop changes':state.error?'Change could not be applied':state.previewUntil?'Timed preview active':'Saved on this PC';
  $('#reference').disabled=!state.ready;$('#timed-preview').disabled=!state.ready||!desktop;$('#reset-all').disabled=!state.ready;
  $('#open-quick-controls').disabled=!desktop;$('#open-quick-controls').title=desktop?'Open compact controls over your desktop':'Quick controls are available in the Electron app.';
@@ -52,7 +52,7 @@ function render(){
  renderProfiles();window.ScreenIcons.paint();
 }
 function renderProfiles(){
- const container=$('#profile-list');container.replaceChildren();const profiles=[{id:'neutral',name:'Neutral',values:neutral,builtin:true},{id:'reference',name:'Peter reference',values:reference,builtin:true},...state.profiles];
+ const container=$('#profile-list');container.replaceChildren();const profiles=[{id:'neutral',name:'Default',values:neutral,builtin:true},{id:'reference',name:'Custom preset one',values:reference,builtin:true},...state.profiles];
  for(const p of profiles){const row=document.createElement('article');row.className='profile-row';const swatch=document.createElement('span');swatch.className='profile-swatch '+p.id;
   const copy=document.createElement('div');copy.className='profile-copy';const title=document.createElement('strong');title.textContent=p.name;const summary=document.createElement('p');summary.textContent=`Saturation ${p.values.saturation}% · Contrast ${p.values.contrast}% · Warmth ${p.values.warmth}`;copy.append(title,summary);
   const apply=document.createElement('button');apply.className='quiet-button';apply.textContent=state.profileId===p.id?'Selected':'Apply';apply.disabled=!state.ready;apply.addEventListener('click',()=>action('preset',p.id));row.append(swatch,copy,apply);

@@ -37,7 +37,7 @@ function icon(){const size=32,buffer=Buffer.alloc(size*size*4);for(let y=0;y<siz
 function updateTray(){if(!tray||!controller)return;const state=controller.snapshot();tray.setToolTip(`Screen Color - ${state.enabled?'effect on':'original colors'}`);tray.setContextMenu(Menu.buildFromTemplate([
  {label:'Quick controls',click:()=>showPopup().catch(error=>log(error.message))},{label:'Open full app',click:showWindow},{type:'separator'},
  {label:'Color effect',type:'checkbox',checked:state.enabled,enabled:state.ready,click:item=>controller.dispatch('toggle',item.checked).catch(()=>{})},
- {label:'Peter reference',enabled:state.ready,click:()=>controller.dispatch('preset','reference').catch(()=>{})},
+ {label:'Custom preset one',enabled:state.ready,click:()=>controller.dispatch('preset','reference').catch(()=>{})},
  {label:'Original colors',enabled:state.ready,click:()=>controller.dispatch('toggle',false).catch(()=>{})},
  {type:'separator'},{label:'Quit and restore colors',click:()=>app.quit()}
  ]));}

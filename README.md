@@ -12,7 +12,7 @@ The instructions below launch the development copy.
 
 1. Close all old `ColorTest`, `ColorTest-Live` and `ColorTest-Range` windows. Their temporary effects are separate from this app.
 2. Double-click **Start-Screen-Color.cmd** in this folder.
-3. The compact quick-controls popup opens first. Choose **Peter reference** from its Profile list for the accepted starting point: saturation 139%, contrast 115%, warmth 100. Choose **Open full app** for the larger workspace.
+3. The compact quick-controls popup opens first. Choose **Custom preset one** from its Profile list for the accepted starting point: saturation 139%, contrast 115%, warmth 100. Choose **Open full app** for the larger workspace.
 
 There is no mandatory preview timeout. The effect stays enabled until you turn it off or quit. Click the Windows system-tray icon for quick controls; double-click it for the full app. The popup hides when you click away unless its lock/pin button is selected. When pinned it stays above other windows, and its header can be dragged. Its close button and Escape hide the popup without turning off your colors.
 
@@ -27,7 +27,7 @@ To keep a new look directly from the toolbar, adjust the sliders, click **Save a
 - Live saturation 0–200%, contrast 80–140%, warmth -300 to +300, software brightness 80–120% and tint -100 to +100.
 - Numeric inputs, individual reset, original/adjusted toggle and reset all.
 - A wallpaper preview above the sliders, Original/Adjusted comparison and a local image picker. Selected images stay in this browser/app's IndexedDB and are never uploaded. JPG, PNG, WebP and AVIF are supported up to 20 MB / 40 megapixels. Browser preview simulates the same color matrix on the image only; Electron relies on the desktop effect to avoid double processing.
-- Protected Neutral/Peter reference presets, named local profiles and persistent chosen settings.
+- Protected Default/Custom preset one presets, named local profiles and persistent chosen settings.
 - Tray controls, optional 60-second preview, restoration on exit, native helper recovery and display/resume reapply.
 - **Start with Windows**, enabled by default for the installed app. The development copy registers its existing runtime and source folder only when you opt in; a localhost server is not required.
 
