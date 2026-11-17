@@ -37,7 +37,7 @@ nav { display: grid; gap: 4px; }
 .nav-item.selected { background: var(--accent); color: var(--on-accent); }
 .nav-item.selected:hover { background: var(--accent-hover); color: var(--on-accent); }
 .nav-item.selected * { color: var(--on-accent); }
-.sidebar-bottom { margin-top: auto; padding: 24px 14px 0; font-size: 12px; border-top: 1px solid var(--stroke-soft); }
+.sidebar-bottom { margin-top: 0; padding: 24px 14px 0; font-size: 12px; border-top: 1px solid var(--stroke-soft); }
 .sidebar-bottom strong { display: block; font-weight: 600; margin-top: 12px; }
 .sidebar-bottom p { color: var(--muted); line-height: 1.6; margin: 5px 0 24px; overflow-wrap: anywhere; }
 .monitor-symbol { color: var(--muted); }
@@ -211,3 +211,29 @@ dialog input { width: 100%; padding: 10px 13px; background: var(--glass); border
   .setting-row { gap: 16px; }
 }
 @media(prefers-reduced-motion:reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/* Shared PlayTime support navigation and theme shortcuts. */
+.sidebar-tools { margin-top: auto; display: grid; gap: 4px; }
+.sidebar-tools .nav-item { width: 100%; font-size: 13px; gap: 10px; }
+.sidebar-tools [data-icon="Heart"], .sidebar-tools [data-icon="MessageQuestion"] { color: var(--pink, var(--accent)); }
+.sidebar-tools .selected [data-icon] { color: inherit; }
+.sidebar-theme-panel { padding: 4px 8px 10px; }
+#sidebar-theme-picker { display: grid; gap: 4px; }
+#sidebar-theme-picker .theme-swatch { width: 100%; justify-content: flex-start; border: 0; box-shadow: none; background: transparent; }
+#sidebar-theme-picker .theme-swatch.on { background: var(--accent); color: var(--on-accent); }
+.sidebar-theme-panel > .text-button { margin-top: 12px; white-space: normal; text-align: left; line-height: 1.5; }
+.feedback-body { max-width: 900px; padding-bottom: 30px; }
+.feedback-primary { max-width: 640px; padding: 16px 0 30px; }
+.feedback-primary > [data-icon] { color: var(--muted); margin-bottom: 22px; }
+.feedback-primary > [data-icon] svg { width: 32px; height: 32px; }
+.feedback-body h2 { font-size: 20px; line-height: 1.4; margin-bottom: 12px; }
+.feedback-body p { font-size: 14px; line-height: 1.75; max-width: 68ch; margin-bottom: 22px; }
+.feedback-primary .feedback-note { font-size: 12px; margin: 16px 0 0; }
+.feedback-secondary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 40px; border-top: 1px solid var(--stroke); padding-top: 30px; }
+.feedback-secondary h2 { font-size: 16px; }
+.feedback-secondary p { font-size: 13px; }
+.feedback-body .form-error { margin-top: 24px; }
+@media(max-width:1100px) { .feedback-secondary { grid-template-columns: minmax(0,1fr); gap: 28px; } }
+
+.sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar > * { flex-shrink: 0; }

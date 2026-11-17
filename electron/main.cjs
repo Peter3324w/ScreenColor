@@ -1,8 +1,9 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,Tray,Menu,nativeImage,globalShortcut,powerMonitor,screen}=require('electron');
+const {app,BrowserWindow,ipcMain,Tray,Menu,nativeImage,globalShortcut,powerMonitor,screen,shell}=require('electron');
 const fs=require('node:fs');const path=require('node:path');const {pathToFileURL}=require('node:url');const {EventEmitter}=require('node:events');
 const {Store}=require('../lib/store.cjs');const {NativeBridge}=require('../lib/bridge.cjs');const {Controller}=require('../lib/controller.cjs');
 const {Popup}=require('./popup.cjs');
+const {supportURL}=require('../lib/support.cjs');
 const {startupOptions:makeStartupOptions,runtimePaths}=require('../lib/platform.cjs');
 const root=path.resolve(__dirname,'..');const smoke=process.argv.includes('--smoke');
 if(smoke)app.disableHardwareAcceleration();
@@ -56,6 +57,7 @@ async function start(){
  ipcMain.handle('screen-color:state',event=>{validateSender(event);return snapshot();});
  ipcMain.handle('screen-color:action',async(event,type,payload)=>{
   validateSender(event);try{
+   if(type==='openSupport'){await shell.openExternal(supportURL(payload));return {ok:true,state:snapshot()};}
    if(type==='quit'){setImmediate(()=>app.quit());return {ok:true,state:snapshot()};}
    if(type==='openFullApp'){showWindow();return {ok:true,state:snapshot()};}
    if(type==='openPopup'){await showPopup();return {ok:true,state:snapshot()};}
@@ -84,6 +86,27 @@ async function runSmoke(){
  const results=[];const errors=[];const step=check=>{results.push(check);log('Smoke: '+check);};window.webContents.on('console-message',(_event,level,message)=>{if(level>=3)errors.push(message);});
  try{
   const initial=await window.webContents.executeJavaScript('window.screenColor.getState()');if(initial.smoke!==true)throw new Error('Preload bridge unavailable');step('sandboxed preload state bridge');
+  const opened=[],originalOpen=shell.openExternal;
+  try{
+   shell.openExternal=async url=>{opened.push(url);};
+   await window.webContents.executeJavaScript("document.querySelector('.nav-item[data-view=feedback]').click();document.querySelector('[data-support=feedback]').click()");
+   await new Promise(r=>setTimeout(r,100));
+   for(const id of ['help','issues'])await window.webContents.executeJavaScript("window.screenColor.action('openSupport',"+JSON.stringify(id)+")");
+   if(opened.join('|')!==['feedback','help','issues'].map(supportURL).join('|'))throw new Error('Support destinations did not reach the system browser boundary');
+   const rejected=await window.webContents.executeJavaScript("window.screenColor.action('openSupport','https://example.com')");if(rejected.ok||opened.length!==3)throw new Error('Arbitrary support destination accepted');
+   shell.openExternal=async()=>{throw new Error('Browser unavailable');};
+   await window.webContents.executeJavaScript("document.querySelector('[data-support=feedback]').click()");await new Promise(r=>setTimeout(r,100));
+   if(!await window.webContents.executeJavaScript("!document.querySelector('#feedback-error').hidden&&document.querySelector('#feedback-error').textContent.includes('Could not open')"))throw new Error('Missing browser failure message');
+  }finally{shell.openExternal=originalOpen;}
+  step('feedback and support links cross validated IPC to fixed system-browser destinations; unknown IDs rejected and browser failures shown');
+  const savedAppearance=await window.webContents.executeJavaScript("localStorage.getItem('screen-color-appearance')");
+  await window.webContents.executeJavaScript("document.querySelector('#sidebar-theme-toggle').click();document.querySelector('#sidebar-theme-picker [data-theme=rose]').click()");await new Promise(r=>setTimeout(r,150));
+  if(await popup.window.webContents.executeJavaScript("document.documentElement.dataset.theme")!=='rose')throw new Error('Sidebar theme did not reach quick controls');
+  window.webContents.reloadIgnoringCache();await new Promise(resolve=>window.webContents.once('did-finish-load',resolve));await new Promise(r=>setTimeout(r,150));
+  if(!await window.webContents.executeJavaScript("document.querySelector('#sidebar-theme-picker [data-theme=rose]').getAttribute('aria-pressed')==='true'&&document.querySelector('#theme-picker [data-theme=rose]').getAttribute('aria-pressed')==='true'"))throw new Error('Sidebar theme did not persist and sync');
+  await window.webContents.executeJavaScript(savedAppearance===null?"localStorage.removeItem('screen-color-appearance')":"localStorage.setItem('screen-color-appearance',"+JSON.stringify(savedAppearance)+")");
+  window.webContents.reloadIgnoringCache();await new Promise(resolve=>window.webContents.once('did-finish-load',resolve));await new Promise(r=>setTimeout(r,150));
+  step('sidebar theme synchronizes with Settings and quick controls and survives reload');
   await window.webContents.executeJavaScript(`window.screenColor.action('preset','reference')`);let state=controller.snapshot();if(!state.enabled||state.values.saturation!==139)throw new Error('Reference preset failed');step('reference preset and acknowledged effect state');
   await window.webContents.executeJavaScript(`window.screenColor.action('saveProfile','Smoke wallpaper')`);if(!controller.state.profiles.some(p=>p.name==='Smoke wallpaper'))throw new Error('Profile save failed');step('local named profile persistence');
   await window.webContents.executeJavaScript(`document.querySelector('[data-key="saturation"] input[type="range"]').value=155;document.querySelector('[data-key="saturation"] input[type="range"]').dispatchEvent(new Event('input',{bubbles:true}))`);

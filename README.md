@@ -65,3 +65,9 @@ Actual app settings: `%APPDATA%\ScreenColor\settings.json`, validated and atomic
 Quit cleanly before using a different desktop color tool. A native named mutex, recovery journal and ownership check coordinate restoration if the helper or Electron exits unexpectedly. On failure the interface reports the effect off and offers Retry. It never force-reapplies continuously against competing color tools.
 
 Source and implementation decisions: [design](docs/superpowers/specs/2026-11-16-screen-color-design.md), [plan](docs/superpowers/plans/2026-11-16-screen-color.md).
+
+## Feedback, support and themes
+
+The sidebar's **Feedback / Support** page links to the shared Peter's Cave feedback form and Screen Color reports in the app-feedback GitHub repository. **Help me** opens Peter's Cave's support page. Links open in the system browser; desktop IPC accepts only fixed destination IDs, never arbitrary URLs. Include Screen Color in the report; the deployed form's app selection has not been verified.
+
+The sidebar **Theme** picker offers Midnight, Graphite, Deep, Moss and Rose. It shares the Settings appearance preferences and persists locally. Custom accent colors remain in Settings.
