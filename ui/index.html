@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' http://localhost:*; object-src 'none'; base-uri 'none'; form-action 'none'">
- <title>Screen Color</title><link rel="stylesheet" href="playtime-tokens.css"><link rel="stylesheet" href="style.css"><script src="playtime-appearance.js" defer></script><script src="icons.js" defer></script><script src="appearance.js" defer></script><script src="color-matrix.js" defer></script><script src="image-preview.js" defer></script><script src="app.js" defer></script>
+ <title>Screen Color</title><link rel="stylesheet" href="playtime-tokens.css"><link rel="stylesheet" href="style.css"><script src="playtime-appearance.js" defer></script><script src="icons.js" defer></script><script src="filter-presets.js" defer></script><script src="appearance.js" defer></script><script src="color-matrix.js" defer></script><script src="image-preview.js" defer></script><script src="app.js" defer></script>
 </head>
 <body>
  <div class="app-shell">
@@ -11,20 +11,28 @@
    <div class="brand"><span class="brand-mark" data-icon="Colorfilter" data-variant="Bulk" aria-hidden="true"></span><span>Screen Color<small>Desktop color studio</small></span></div>
    <nav aria-label="Main navigation">
     <button class="nav-item selected" data-view="adjustments"><span data-icon="Setting4" aria-hidden="true"></span> Adjustments</button>
-    <button class="nav-item" data-view="profiles"><span data-icon="Layer" aria-hidden="true"></span> Profiles</button>
+    <button class="nav-item" data-view="profiles"><span data-icon="Layer" aria-hidden="true"></span> Filters</button>
     <button class="nav-item" data-view="settings"><span data-icon="Setting2" aria-hidden="true"></span> Settings</button>
    </nav>
-   <div class="sidebar-bottom"><span class="monitor-symbol" data-icon="Monitor" aria-hidden="true"></span><strong>All displays</strong><p id="display-info">Desktop color controls</p><span class="version">Local development · v0.1</span></div>
+   <div class="sidebar-tools">
+    <button class="nav-item" data-view="feedback"><span data-icon="MessageQuestion" aria-hidden="true"></span>Feedback / Support</button>
+    <button class="nav-item" data-support="help" title="Support Peter's work on Peter's Cave"><span data-icon="Heart" aria-hidden="true"></span>Help me</button>
+    <button id="sidebar-theme-toggle" class="nav-item" aria-expanded="false" aria-controls="sidebar-theme-panel"><span data-icon="Colorfilter" aria-hidden="true"></span>Theme</button>
+    <div id="sidebar-theme-panel" class="sidebar-theme-panel" hidden><div id="sidebar-theme-picker" role="group" aria-label="Sidebar app theme"></div><button class="text-button" data-view="settings">Custom accent in Settings</button></div>
+    <p id="sidebar-support-error" class="form-error" role="alert" hidden></p>
+   </div>
+   <div class="sidebar-bottom"><span class="monitor-symbol" data-icon="Monitor" aria-hidden="true"></span><strong>All displays</strong><p id="display-info">Desktop color controls</p></div>
   </aside>
   <main>
-   <header class="topbar"><span id="connection"><i class="status-dot"></i>Connecting to color engine</span><div class="topbar-actions"><button id="open-quick-controls" class="quiet-button" title="Open the compact controls over your desktop"><span data-icon="Setting4" aria-hidden="true"></span>Quick controls</button><button id="effect-toggle" class="effect-toggle" role="switch" aria-checked="false"><span id="effect-text">Effect off</span><span class="switch-track" aria-hidden="true"><span></span></span></button></div></header>
+
    <div id="preview-notice" class="notice" hidden>Browser preview. Open the Electron app to change desktop colors.</div>
    <div id="error-banner" class="notice error" role="alert" hidden><span id="error-text"></span><button id="retry" class="text-button"><span data-icon="Refresh" aria-hidden="true"></span>Retry engine</button></div>
    <div id="warning-banner" class="notice" role="status" hidden></div>
    <section id="view-adjustments" class="view">
-    <div class="page-heading"><div><h1>Color adjustments</h1><p>A richer picture. On your terms.</p></div><button id="reset-all" class="quiet-button"><span data-icon="Refresh" aria-hidden="true"></span>Reset all</button></div>
+    <div class="page-heading"><div><h1>Color adjustments</h1><p>A richer picture. On your terms.</p></div></div>
     <div class="workspace">
      <section class="controls-panel" aria-label="Color controls">
+      <div class="preview-dock">
       <figure class="image-preview" aria-label="Image color preview">
        <div class="preview-toolbar"><span id="preview-image-name">Your wallpaper</span><div class="preview-comparison" role="group" aria-label="Compare color effect"><button id="preview-original" aria-pressed="true">Original</button><button id="preview-adjusted" aria-pressed="false">Adjusted</button></div></div>
        <div class="image-stage"><img id="preview-image" src="preview-default.jpg" alt="Wallpaper preview for comparing purple, green and orange colors"><span id="preview-badge" class="preview-badge">Original</span></div>
@@ -32,31 +40,46 @@
        <input id="preview-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden>
        <p id="image-preview-error" class="image-preview-error" role="status" hidden></p>
       </figure>
-      <div class="section-heading"><h2>Fine-tune your screen</h2><span id="profile-label">Neutral</span></div><div id="controls"></div><p class="helper-copy">Changes apply as you drag. Your chosen look stays on until you turn it off.</p>
+      </div>
+      <div class="section-heading"><h2>Fine-tune your screen</h2></div><p id="profile-label" class="current-look">Default</p><div id="controls"></div><p class="helper-copy">Changes apply as you drag. Your chosen look stays on until you turn it off.</p>
      </section>
-     <aside class="reference-panel">
-      <h2>Find your balance</h2><p>Watch the colors you care about.</p>
-      <div class="color-study" aria-label="Purple, green and orange color reference"><div class="study-purple"><span>Purple depth</span></div><div class="study-row"><div class="study-green"><span>Green glow</span></div><div class="study-orange"><span>Orange warmth</span></div></div></div>
-      <div class="grayscale" aria-label="Grayscale steps from black to white"></div><p class="caption">Keep neighboring shades distinguishable.</p>
-      <div class="reference-preset"><span class="small-label">Your starting point</span><h3>Peter reference</h3><p>The look you liked in the experiment.</p><button id="reference" class="accent-button"><span data-icon="TickCircle" aria-hidden="true"></span>Apply reference</button></div>
-      <button id="timed-preview" class="quiet-button full-width">Preview for 60 seconds</button><p id="preview-description" class="caption">Optional. Returns to the previous on/off state.</p>
-     </aside>
+
     </div>
+    <section class="adjustment-filters" aria-labelledby="adjustment-filters-heading"><h2 id="adjustment-filters-heading">Try a filter</h2><p class="filter-hint">A few starting points for your screen.</p><div id="adjustment-filter-compare" class="filter-compare" hidden><p>Your screen effect also changes these samples. Turn it off for a clean comparison.</p><button class="quiet-button" data-compare-filters>Compare samples</button></div><div id="adjustment-filter-gallery" class="filter-gallery adjustment-filter-gallery" role="group" aria-label="Suggested filters"></div><button class="browse-more-filters" data-view="profiles">Browse more filters</button></section>
     <footer class="page-footer"><span id="saved-status" role="status">Settings saved on this PC</span><button id="save-profile" class="text-button"><span data-icon="SaveAdd" aria-hidden="true"></span>Save as profile</button></footer>
    </section>
-   <section id="view-profiles" class="view" hidden><div class="page-heading"><div><h1>Your looks</h1><p>A familiar starting point for every mood.</p></div><button id="save-profile-alt" class="accent-button"><span data-icon="Add" aria-hidden="true"></span>Save current look</button></div><div id="profile-list" class="profile-list"></div><p class="helper-copy">Profiles stay on this PC. Applying Neutral restores the screen's original color effect.</p></section>
+   <section id="view-profiles" class="view" hidden><div class="page-heading"><div><h1>Find your look</h1><p>Start with a filter. Make it yours.</p></div><button id="save-profile-alt" class="accent-button"><span data-icon="Add" aria-hidden="true"></span>Save current look</button></div><section class="filter-section" aria-labelledby="filter-heading"><div class="section-heading"><h2 id="filter-heading">Starter filters</h2><span>8 looks</span></div><p class="filter-hint">Select a sample to apply it, then fine-tune in Adjustments. Judge the finished look on your screen.</p><div id="filter-compare" class="filter-compare" hidden><p>Your screen effect also changes these samples. Turn it off for a clean comparison.</p><button id="compare-filters" class="quiet-button" data-compare-filters>Compare samples</button></div><div id="filter-gallery" class="filter-gallery" role="group" aria-label="Starter filters"></div></section><section class="saved-looks" aria-labelledby="saved-looks-heading"><h2 id="saved-looks-heading">Your profiles</h2><p class="filter-hint">Your saved looks, alongside your original starting points.</p><div id="profile-list" class="profile-list"></div></section><p class="helper-copy">Profiles stay on this PC. Applying Default restores the screen's original color effect.</p></section>
+   <section id="view-feedback" class="view" hidden aria-labelledby="feedback-heading">
+    <div class="page-heading"><div><h1 id="feedback-heading" tabindex="-1">Feedback &amp; support</h1><p>Help make Screen Color better.</p></div></div>
+    <div class="feedback-body">
+     <section class="feedback-primary"><span data-icon="MessageQuestion" aria-hidden="true"></span><h2>Found a bug? Have an idea?</h2><p>Share a bug report, suggest a feature, or send feedback through Peter's Cave. Include Screen Color in your report so it reaches the right app.</p><button class="accent-button" data-support="feedback">Open feedback form <span data-icon="ExportSquare" aria-hidden="true"></span></button><p class="feedback-note">Opens in your browser. Reports may appear as public GitHub issues. Leave out personal details, private file paths, and sensitive screenshots.</p></section>
+     <div class="feedback-secondary"><section><h2>Check existing reports</h2><p>Look for a similar report and follow updates for Screen Color.</p><button class="quiet-button" data-support="issues">Browse GitHub issues <span data-icon="ExportSquare" aria-hidden="true"></span></button></section><section><h2>Need your original colors back?</h2><p>Press Ctrl + Alt + F12, switch the color effect off, or choose Quit and restore colors in the tray menu.</p><button class="quiet-button" data-view="settings">Open settings</button></section></div>
+     <p id="feedback-error" class="form-error" role="alert" hidden></p>
+    </div>
+   </section>
    <section id="view-settings" class="view" hidden><div class="page-heading"><div><h1>Make it yours</h1><p>Quietly there when you need it.</p></div></div>
     <div class="settings-list">
      <section class="appearance-card" aria-labelledby="appearance-heading"><div class="appearance-heading"><span data-icon="Colorfilter" aria-hidden="true"></span><div><h2 id="appearance-heading">Appearance</h2><p>The same themes and accents as PlayTime.</p></div></div><div class="appearance-field"><span class="setting-title">Theme</span><div id="theme-picker" class="theme-picker" role="group" aria-label="App theme"></div></div><div class="appearance-field"><label class="setting-title" for="accent-color">Accent color</label><p>The color of selected controls. Auto follows your theme.</p><div class="accent-controls"><button id="accent-auto" class="quiet-button">Auto</button><input id="accent-color" type="color" value="#ffffff" aria-label="Custom accent color"><input id="accent-hex" type="text" maxlength="7" placeholder="#ffffff" aria-label="Accent hex color" spellcheck="false"><div id="accent-presets" class="accent-presets" role="group" aria-label="Popular accent colors"></div></div><p id="appearance-status" class="caption" role="status">Appearance saved on this device.</p></div></section>
      <label class="setting-row"><span><strong>Start with Windows</strong><small>Open quietly in the tray when you sign in.</small></span><input type="checkbox" id="startup"></label>
      <label class="setting-row"><span><strong>Keep running when closed</strong><small>Closing the full app keeps your colors active in the tray.</small></span><input type="checkbox" id="minimize"></label>
      <div class="setting-row"><span><strong>Restore original colors</strong><small id="shortcut-description">Use the effect switch or the tray menu.</small></span><kbd>Ctrl + Alt + F12</kbd></div>
-     <div class="setting-note"><h2>About this version</h2><p>Adjustments apply to all displays together, using the desktop color engine tested on your Intel graphics.</p><p>Brightness changes the picture, not the panel's backlight. Warmth is a relative adjustment, not a measured temperature.</p><p>Independent display controls, gamma curves and HDR processing are not included yet.</p><p id="startup-path-description" class="caption">This development app starts from its current source folder and local Electron runtime. Moving either location requires updating Windows startup.</p></div>
+     <div class="setting-note"><h2>About this version</h2><p>Adjustments apply to all displays together, using the desktop color engine tested on your Intel graphics.</p><p>Brightness changes the picture, not the panel's backlight. Warmth is a relative adjustment, not a measured temperature.</p><p>Independent display controls, gamma curves and HDR processing are not included yet.</p></div>
      <button id="quit" class="quiet-button quit-button"><span data-icon="CloseCircle" aria-hidden="true"></span>Quit and restore original colors</button>
     </div>
    </section>
   </main>
+  <aside class="right-sidebar" aria-label="Desktop color controls">
+   <div class="sidebar-actions" role="group" aria-label="Desktop color actions"><button id="open-quick-controls" class="quiet-button" title="Open the compact controls over your desktop"><span data-icon="Setting4" aria-hidden="true"></span>Quick controls</button><button id="reset-all" class="quiet-button" title="Restore all adjustments to their defaults"><span data-icon="Refresh" aria-hidden="true"></span>Reset all</button><button id="effect-toggle" class="effect-toggle" role="switch" aria-checked="false"><span id="effect-text">Effect off</span><span class="switch-track" aria-hidden="true"><span></span></span></button></div>
+     <section class="reference-panel" aria-label="Color reference">
+      <h2>Find your balance</h2><p>Watch the colors you care about.</p>
+      <div class="color-study" aria-label="Purple, green and orange color reference"><div class="study-purple"><span>Purple depth</span></div><div class="study-row"><div class="study-green"><span>Green glow</span></div><div class="study-orange"><span>Orange warmth</span></div></div></div>
+      <div class="grayscale" aria-label="Grayscale steps from black to white"></div><p class="caption">Keep neighboring shades distinguishable.</p>
+      <div class="reference-preset"><span class="small-label">Your starting point</span><h3>Custom preset one</h3><p>The look you liked in the experiment.</p><button id="reference" class="accent-button"><span data-icon="TickCircle" aria-hidden="true"></span>Apply preset</button></div>
+      <button id="timed-preview" class="quiet-button full-width">Preview for 60 seconds</button><p id="preview-description" class="caption">Optional. Returns to the previous on/off state.</p>
+     </section>
+  </aside>
  </div>
+ <div id="connection" class="engine-status" role="status"><i class="status-dot"></i>Connecting to color engine</div>
  <svg class="preview-filter-definitions" aria-hidden="true"><defs><filter id="image-color-filter" color-interpolation-filters="sRGB"><feColorMatrix id="image-color-matrix" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"/></filter></defs></svg>
  <dialog id="profile-dialog"><form id="profile-form"><h2>Keep this look</h2><p>Give your current adjustments a name.</p><label for="profile-name">Profile name</label><input id="profile-name" maxlength="64" required placeholder="Evening wallpaper" autocomplete="off"><p id="profile-error" class="form-error" role="alert"></p><div class="dialog-actions"><button id="cancel-profile" type="button" class="quiet-button">Cancel</button><button type="submit" class="accent-button">Save profile</button></div></form></dialog>
 </body>
