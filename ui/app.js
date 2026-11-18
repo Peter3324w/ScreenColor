@@ -8,7 +8,7 @@ const definitions=[
 ];
 const neutral={saturation:100,contrast:100,warmth:0,brightness:100,tint:0};const reference={...neutral,saturation:139,contrast:115,warmth:100};
 const filters=window.ScreenColorFilters;
-const $=selector=>document.querySelector(selector);let state,draft={...neutral},pending=null,busy=false,currentView='adjustments';
+const $=selector=>document.querySelector(selector);let state,draft={...neutral},pending=null,busy=false,savingProfile=false,currentView='adjustments';
 const desktop=!!window.screenColor;
 const api=window.screenColor||{
  async getState(){return {enabled:false,ready:true,values:{...neutral},profileId:'neutral',profiles:[],preferences:{startup:false,minimizeToTray:true},displays:[],shortcutAvailable:false};},
@@ -87,7 +87,7 @@ $('#open-quick-controls').addEventListener('click',()=>action('openPopup'));
 $('#startup').addEventListener('change',()=>action('preferences',{startup:$('#startup').checked,minimizeToTray:state.preferences.minimizeToTray}));$('#minimize').addEventListener('change',()=>action('preferences',{startup:state.startupActual||false,minimizeToTray:$('#minimize').checked}));$('#quit').addEventListener('click',()=>action('quit'));
 function openProfileDialog(){$('#profile-error').textContent='';$('#profile-name').value='';$('#profile-dialog').showModal();$('#profile-name').focus();}
 $('#save-profile').addEventListener('click',openProfileDialog);$('#save-profile-alt').addEventListener('click',openProfileDialog);$('#cancel-profile').addEventListener('click',()=>$('#profile-dialog').close());
-$('#profile-form').addEventListener('submit',async event=>{event.preventDefault();if(await action('saveProfile',$('#profile-name').value))$('#profile-dialog').close();else $('#profile-error').textContent='Could not save this profile. Check the message above.';});
+$('#profile-form').addEventListener('submit',async event=>{event.preventDefault();if(savingProfile)return;savingProfile=true;const submit=$('#profile-form button[type=submit]');submit.disabled=true;$('#profile-error').textContent='';try{if(await action('saveProfile',$('#profile-name').value))$('#profile-dialog').close();else $('#profile-error').textContent='Could not save this profile. Check the message above.';}finally{savingProfile=false;submit.disabled=false;}});
 $('#preview-notice').hidden=desktop;api.subscribe(next=>{state=next;render();});api.getState().then(next=>{state=next;render();}).catch(error=>showError(error.message));
 setInterval(()=>{if(state?.previewUntil){const remaining=Math.max(0,Math.ceil((state.previewUntil-Date.now())/1000));$('#preview-description').textContent=`Timed preview · ${remaining}s remaining. Returns to the previous on/off state.`;}else $('#preview-description').textContent='Optional. Returns to the previous on/off state.';},500);
 if(!desktop&&location.protocol==='http:'){const events=new EventSource('/events');events.onmessage=()=>location.reload();}
