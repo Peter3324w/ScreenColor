@@ -71,3 +71,11 @@ Source and implementation decisions: [design](docs/superpowers/specs/2026-11-16-
 The sidebar's **Feedback / Support** page links to the shared Peter's Cave feedback form and Screen Color reports in the app-feedback GitHub repository. **Help me** opens Peter's Cave's support page. Links open in the system browser; desktop IPC accepts only fixed destination IDs, never arbitrary URLs. Include Screen Color in the report; the deployed form's app selection has not been verified.
 
 The sidebar **Theme** picker offers Midnight, Graphite, Deep, Moss and Rose. It shares the Settings appearance preferences and persists locally. Custom accent colors remain in Settings.
+
+## Filters and personal profiles
+
+Open **Filters** in the sidebar, or **Browse filters** beside Fine-tune your screen. Eight starter looks cover subtle and cinematic styles: Natural, Vivid, Golden, Cool, Soft, Cinema, Vintage and Mono. Each card applies an existing five-slider preset immediately. The cards use your local preview image; choose a different image on Adjustments to compare a familiar scene.
+
+The active desktop effect also changes the sample images. **Compare samples** turns that effect off for a clean comparison while preserving your chosen values and profile. Selecting a card applies its filter again. The effect switch can also restore the chosen look.
+
+Fine-tune any preset in Adjustments, then use **Save as profile** or **Save current look** to keep your own version. Your profiles appear below the gallery; starter filters cannot be deleted or overwritten. Default and Custom preset one remain available. Quick controls includes all eight filters and your saved profiles, with the same selected look as the full app.

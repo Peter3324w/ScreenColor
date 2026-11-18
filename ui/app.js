@@ -7,11 +7,12 @@ const definitions=[
  {key:'tint',label:'Tint',min:-100,max:100,neutral:0,unit:'',help:'Balance a green or magenta color cast.',ends:['Greener','More magenta']}
 ];
 const neutral={saturation:100,contrast:100,warmth:0,brightness:100,tint:0};const reference={...neutral,saturation:139,contrast:115,warmth:100};
+const filters=window.ScreenColorFilters;
 const $=selector=>document.querySelector(selector);let state,draft={...neutral},pending=null,busy=false,currentView='adjustments';
 const desktop=!!window.screenColor;
 const api=window.screenColor||{
  async getState(){return {enabled:false,ready:true,values:{...neutral},profileId:'neutral',profiles:[],preferences:{startup:false,minimizeToTray:true},displays:[],shortcutAvailable:false};},
- async action(type,payload){if(type==='openSupport'){const destinations={help:'https://peters-cave.vercel.app/help-me',feedback:'https://peters-cave.vercel.app/feedback?app=screen-color',issues:'https://github.com/Peter3324w/app-feedback/issues?q=is%3Aissue+%22%5BScreen%20Color%5D%22+in%3Atitle'};if(!Object.hasOwn(destinations,payload))throw new Error('Unknown support destination.');window.open(destinations[payload],'_blank','noopener,noreferrer');return {ok:true,state};}const next=structuredClone(state);if(type==='values'){next.values=payload;next.enabled=true;next.profileId=null;}if(type==='preset'){next.values=payload==='reference'?reference:payload==='neutral'?neutral:next.profiles.find(p=>p.id===payload).values;next.profileId=payload;next.enabled=payload!=='neutral';}if(type==='toggle')next.enabled=payload;if(type==='reset'){next.values={...neutral};next.enabled=false;next.profileId='neutral';}if(type==='saveProfile'){const p={id:String(Date.now()),name:payload,values:{...next.values}};next.profiles.push(p);next.profileId=p.id;}if(type==='deleteProfile'){next.profiles=next.profiles.filter(p=>p.id!==payload);if(next.profileId===payload)next.profileId=null;}return {ok:true,state:next};},subscribe(){return ()=>{};}
+ async action(type,payload){if(type==='openSupport'){const destinations={help:'https://peters-cave.vercel.app/help-me',feedback:'https://peters-cave.vercel.app/feedback?app=screen-color',issues:'https://github.com/Peter3324w/app-feedback/issues?q=is%3Aissue+%22%5BScreen%20Color%5D%22+in%3Atitle'};if(!Object.hasOwn(destinations,payload))throw new Error('Unknown support destination.');window.open(destinations[payload],'_blank','noopener,noreferrer');return {ok:true,state};}const next=structuredClone(state);if(type==='values'){next.values=payload;next.enabled=true;next.profileId=null;}if(type==='preset'){next.values=payload==='reference'?reference:payload==='neutral'?neutral:filters.find(p=>p.id===payload)?.values||next.profiles.find(p=>p.id===payload).values;next.profileId=payload;next.enabled=payload!=='neutral';}if(type==='toggle')next.enabled=payload;if(type==='reset'){next.values={...neutral};next.enabled=false;next.profileId='neutral';}if(type==='saveProfile'){const p={id:String(Date.now()),name:payload,values:{...next.values}};next.profiles.push(p);next.profileId=p.id;}if(type==='deleteProfile'){next.profiles=next.profiles.filter(p=>p.id!==payload);if(next.profileId===payload)next.profileId=null;}return {ok:true,state:next};},subscribe(){return ()=>{};}
 };
 function setupControls(){
  for(const d of definitions){const row=document.createElement('div');row.className='control';row.dataset.key=d.key;
@@ -40,7 +41,7 @@ function render(){
  const connection=$('#connection');connection.replaceChildren();const dot=document.createElement('i');dot.className='status-dot'+(state.ready?' connected':'');connection.append(dot,document.createTextNode(!desktop?'Browser preview':state.smoke?'Interface smoke test':state.ready?'Color engine connected':'Color engine unavailable'));
  $('#error-banner').hidden=!state.error;if(state.error)$('#error-text').textContent=state.error;$('#retry').hidden=state.ready;
  $('#warning-banner').hidden=!state.warning;if(state.warning)$('#warning-banner').textContent=state.warning;
- $('#profile-label').textContent=state.profileId==='reference'?'Custom preset one':state.profileId==='neutral'?'Default':state.profiles.find(p=>p.id===state.profileId)?.name||'Custom adjustments';
+ $('#profile-label').textContent=state.profileId==='reference'?'Custom preset one':state.profileId==='neutral'?'Default':filters.find(p=>p.id===state.profileId)?.name||state.profiles.find(p=>p.id===state.profileId)?.name||'Custom adjustments';
  $('#saved-status').textContent=!desktop?'Preview only · no desktop changes':state.error?'Change could not be applied':state.previewUntil?'Timed preview active':'Saved on this PC';
  $('#reference').disabled=!state.ready;$('#timed-preview').disabled=!state.ready||!desktop;$('#reset-all').disabled=!state.ready;
  $('#open-quick-controls').disabled=!desktop;$('#open-quick-controls').title=desktop?'Open compact controls over your desktop':'Quick controls are available in the Electron app.';
@@ -48,7 +49,24 @@ function render(){
  $('#shortcut-description').textContent=state.shortcutAvailable?'Press the shortcut from any app to turn the effect off.':'Shortcut unavailable. Use the effect switch or the tray menu.';
  $('#display-info').textContent=state.displays?.length?state.displays.map(d=>`${d.name} · ${d.width} × ${d.height}`).join('\n'):'One look across your desktop';
  window.ImagePreview.update(draft,state.enabled,desktop);$('#preview-original').disabled=!state.ready;$('#preview-adjusted').disabled=!state.ready;
- renderProfiles();window.ScreenIcons.paint();
+ renderFilters();renderProfiles();window.ScreenIcons.paint();
+}
+function setupFilters(){
+ const ns='http://www.w3.org/2000/svg',defs=$('.preview-filter-definitions defs'),gallery=$('#filter-gallery');
+ for(const preset of filters){
+  const filter=document.createElementNS(ns,'filter');filter.id='sample-'+preset.id;filter.setAttribute('color-interpolation-filters','sRGB');
+  const matrix=document.createElementNS(ns,'feColorMatrix');matrix.setAttribute('type','matrix');matrix.setAttribute('values',window.ColorPreview.svgMatrix(preset.values));filter.append(matrix);defs.append(filter);
+  const card=document.createElement('button');card.type='button';card.className='filter-card';card.dataset.filter=preset.id;card.setAttribute('aria-label','Apply '+preset.name+' filter');card.setAttribute('aria-pressed','false');
+  const sample=document.createElement('span');sample.className='filter-sample';const image=document.createElement('img');image.src=$('#preview-image').getAttribute('src');image.alt='';image.loading='lazy';image.style.filter='url(#sample-'+preset.id+')';
+  const badge=document.createElement('span');badge.className='filter-selected';badge.textContent='Selected';sample.append(image,badge);
+  const copy=document.createElement('span');copy.className='filter-copy';const name=document.createElement('strong');name.textContent=preset.name;const description=document.createElement('span');description.textContent=preset.description;copy.append(name,description);card.append(sample,copy);
+  card.addEventListener('click',()=>action('preset',preset.id));gallery.append(card);
+ }
+ new MutationObserver(()=>{const source=$('#preview-image').getAttribute('src');for(const image of gallery.querySelectorAll('img'))image.src=source;}).observe($('#preview-image'),{attributes:true,attributeFilter:['src']});
+}
+function renderFilters(){
+ $('#filter-compare').hidden=!desktop||!state.enabled;$('#compare-filters').disabled=!state.ready;
+ for(const card of document.querySelectorAll('.filter-card')){card.disabled=!state.ready;card.setAttribute('aria-pressed',String(state.profileId===card.dataset.filter));}
 }
 function renderProfiles(){
  const container=$('#profile-list');container.replaceChildren();const profiles=[{id:'neutral',name:'Default',values:neutral,builtin:true},{id:'reference',name:'Custom preset one',values:reference,builtin:true},...state.profiles];
@@ -58,11 +76,12 @@ function renderProfiles(){
   if(!p.builtin){const remove=document.createElement('button');remove.className='text-button';remove.dataset.icon='Trash';remove.title='Delete '+p.name;remove.setAttribute('aria-label','Delete '+p.name);remove.addEventListener('click',()=>action('deleteProfile',p.id));row.append(remove);}container.append(row);
  }
 }
-function showView(name){currentView=name;for(const view of document.querySelectorAll('.view'))view.hidden=view.id!=='view-'+name;for(const button of document.querySelectorAll('.nav-item[data-view]')){const selected=button.dataset.view===name;button.classList.toggle('selected',selected);if(selected)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}window.ScreenIcons.paint();}
-setupControls();for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>showView(button.dataset.view));
+function showView(name){if(currentView!==name)$('main').scrollTop=0;currentView=name;for(const view of document.querySelectorAll('.view'))view.hidden=view.id!=='view-'+name;for(const button of document.querySelectorAll('.nav-item[data-view]')){const selected=button.dataset.view===name;button.classList.toggle('selected',selected);if(selected)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}window.ScreenIcons.paint();}
+setupControls();setupFilters();for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>showView(button.dataset.view));
 for(const button of document.querySelectorAll('[data-support]'))button.addEventListener('click',async()=>{const error=$('#view-feedback').hidden?$('#sidebar-support-error'):$('#feedback-error');error.hidden=true;button.disabled=true;try{const result=await api.action('openSupport',button.dataset.support);if(!result.ok)throw new Error(result.error);}catch{error.textContent='Could not open your browser. Please try again.';error.hidden=false;}finally{button.disabled=false;}});
 $('#effect-toggle').addEventListener('click',()=>action('toggle',!state.enabled));$('#reference').addEventListener('click',()=>action('preset','reference'));$('#reset-all').addEventListener('click',()=>action('reset'));$('#timed-preview').addEventListener('click',()=>action('preview'));$('#retry').addEventListener('click',()=>action('retry'));
 $('#preview-original').addEventListener('click',()=>action('toggle',false));$('#preview-adjusted').addEventListener('click',()=>action('toggle',true));
+$('#compare-filters').addEventListener('click',()=>action('toggle',false));
 $('#open-quick-controls').addEventListener('click',()=>action('openPopup'));
 $('#startup').addEventListener('change',()=>action('preferences',{startup:$('#startup').checked,minimizeToTray:state.preferences.minimizeToTray}));$('#minimize').addEventListener('change',()=>action('preferences',{startup:state.startupActual||false,minimizeToTray:$('#minimize').checked}));$('#quit').addEventListener('click',()=>action('quit'));
 function openProfileDialog(){$('#profile-error').textContent='';$('#profile-name').value='';$('#profile-dialog').showModal();$('#profile-name').focus();}
