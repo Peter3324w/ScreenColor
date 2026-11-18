@@ -10,7 +10,7 @@ const assert=require('node:assert/strict');const fs=require('node:fs');const pat
   assert.equal(await page.locator('.nav-item.selected').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(255, 255, 255)');
   assert.equal(await page.locator('.nav-item.selected').evaluate(el=>getComputedStyle(el).color),'rgb(0, 0, 0)');
   await page.screenshot({path:'.local/playtime-after.png',fullPage:true});
-  await page.evaluate(()=>scrollTo(0,500));assert.ok(Math.abs((await page.locator('.image-preview').boundingBox()).y-12)<1);
+  await page.locator('main').evaluate(el=>el.scrollTo(0,500));assert.ok(Math.abs((await page.locator('.image-preview').boundingBox()).y-68)<1);
   await page.click('[data-view=settings]');assert.equal(await page.locator('#theme-picker button').count(),5);
   const palettes={midnight:'rgb(0, 0, 0)',graphite:'rgb(10, 9, 8)',deep:'rgb(7, 10, 18)',moss:'rgb(6, 11, 7)',rose:'rgb(11, 7, 9)'};
   for(const [theme,color] of Object.entries(palettes)){await page.click(`#theme-picker [data-theme="${theme}"]`);assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),color);}
@@ -20,7 +20,7 @@ const assert=require('node:assert/strict');const fs=require('node:fs');const pat
   await page.click('#accent-auto');assert.equal(await page.evaluate(()=>document.documentElement.dataset.accent),undefined);
   await page.click('#theme-picker [data-theme="midnight"]');await page.screenshot({path:'.local/playtime-settings.png',fullPage:true});
   await page.setViewportSize({width:760,height:680});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-  await page.click('[data-view=adjustments]');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.evaluate(()=>scrollTo(0,500));assert.ok(Math.abs((await page.locator('.image-preview').boundingBox()).y-12)<1);
+  await page.click('[data-view=adjustments]');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.locator('main').evaluate(el=>el.scrollTo(0,500));assert.ok(Math.abs((await page.locator('.image-preview').boundingBox()).y-68)<1);
   assert.deepEqual(errors,[]);const report={ok:true,checks:['PlayTime Midnight tokens','white selected nav with black text','Iconsax Linear/Bulk SVGs','five exact theme palettes','custom accent persistence and validation','Auto accent reset','sticky preview','760px adjustments/settings without overflow','no page errors']};fs.writeFileSync(path.join(__dirname,'../.local/design-check.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

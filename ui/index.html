@@ -24,12 +24,12 @@
    <div class="sidebar-bottom"><span class="monitor-symbol" data-icon="Monitor" aria-hidden="true"></span><strong>All displays</strong><p id="display-info">Desktop color controls</p><span class="version">Screen Color &middot; v0.1.0</span></div>
   </aside>
   <main>
-   <header class="topbar"><span id="connection"><i class="status-dot"></i>Connecting to color engine</span><div class="topbar-actions"><button id="open-quick-controls" class="quiet-button" title="Open the compact controls over your desktop"><span data-icon="Setting4" aria-hidden="true"></span>Quick controls</button><button id="effect-toggle" class="effect-toggle" role="switch" aria-checked="false"><span id="effect-text">Effect off</span><span class="switch-track" aria-hidden="true"><span></span></span></button></div></header>
+   <header class="topbar" aria-label="Desktop color actions"><div class="topbar-actions"><button id="open-quick-controls" class="quiet-button" title="Open the compact controls over your desktop"><span data-icon="Setting4" aria-hidden="true"></span>Quick controls</button><button id="reset-all" class="quiet-button" title="Restore all adjustments to their defaults"><span data-icon="Refresh" aria-hidden="true"></span>Reset all</button><button id="effect-toggle" class="effect-toggle" role="switch" aria-checked="false"><span id="effect-text">Effect off</span><span class="switch-track" aria-hidden="true"><span></span></span></button></div></header>
    <div id="preview-notice" class="notice" hidden>Browser preview. Open the Electron app to change desktop colors.</div>
    <div id="error-banner" class="notice error" role="alert" hidden><span id="error-text"></span><button id="retry" class="text-button"><span data-icon="Refresh" aria-hidden="true"></span>Retry engine</button></div>
    <div id="warning-banner" class="notice" role="status" hidden></div>
    <section id="view-adjustments" class="view">
-    <div class="page-heading"><div><h1>Color adjustments</h1><p>A richer picture. On your terms.</p></div><button id="reset-all" class="quiet-button"><span data-icon="Refresh" aria-hidden="true"></span>Reset all</button></div>
+    <div class="page-heading"><div><h1>Color adjustments</h1><p>A richer picture. On your terms.</p></div></div>
     <div class="workspace">
      <section class="controls-panel" aria-label="Color controls">
       <figure class="image-preview" aria-label="Image color preview">
@@ -72,6 +72,7 @@
    </section>
   </main>
  </div>
+ <div id="connection" class="engine-status" role="status"><i class="status-dot"></i>Connecting to color engine</div>
  <svg class="preview-filter-definitions" aria-hidden="true"><defs><filter id="image-color-filter" color-interpolation-filters="sRGB"><feColorMatrix id="image-color-matrix" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"/></filter></defs></svg>
  <dialog id="profile-dialog"><form id="profile-form"><h2>Keep this look</h2><p>Give your current adjustments a name.</p><label for="profile-name">Profile name</label><input id="profile-name" maxlength="64" required placeholder="Evening wallpaper" autocomplete="off"><p id="profile-error" class="form-error" role="alert"></p><div class="dialog-actions"><button id="cancel-profile" type="button" class="quiet-button">Cancel</button><button type="submit" class="accent-button">Save profile</button></div></form></dialog>
 </body>
