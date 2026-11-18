@@ -234,3 +234,8 @@ dialog input { width: 100%; padding: 10px 13px; background: var(--glass); border
 
 .sidebar { height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .sidebar > * { flex-shrink: 0; }
+@media(max-width:1050px) {
+  .sidebar-theme-panel { padding: 4px 0 10px; }
+  #sidebar-theme-picker .theme-swatch { justify-content: center; min-width: 0; padding: 10px; font-size: 0; gap: 0 !important; }
+  .sidebar-theme-panel > .text-button { display: none; }
+}
