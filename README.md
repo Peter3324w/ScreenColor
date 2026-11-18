@@ -1,12 +1,16 @@
 # Screen Color
 
-A Windows desktop color utility built around Peter's successful HP ProBook 450 G4 / Intel HD 620 experiment. Working name, local development version 0.1.1.
+A Windows desktop color utility with live saturation, contrast, warmth, software brightness and tint adjustments. Save your favourite looks as profiles, explore eight starter filters, and switch settings from a compact system-tray panel.
+
+**[Download Screen Color 0.1.1 for Windows (64-bit)](https://github.com/Peter3324w/ScreenColor/releases/download/v0.1.1/Screen-Color-Setup-0.1.1-x64.exe)** · **[Screenshots and app details](https://peters-cave.vercel.app/apps/screen-color)**
+
+Settings and profiles stay on your PC. Adjustments apply to all displays together, and quitting restores the original colors. Windows may show a SmartScreen warning because the installer is unsigned.
 
 The interface uses [PlayTime's design system](docs/design-system.md): its five themes, custom accent derivation, Iconsax icons, typography, spacing, glass surfaces and component styling. Choose a palette under Settings → Appearance.
 
 ## Open the app
 
-For installation, run `release/Screen-Color-Setup-0.1.1-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
+Download the installer above, then run `Screen-Color-Setup-0.1.1-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
 
 The instructions below launch the development copy.
 

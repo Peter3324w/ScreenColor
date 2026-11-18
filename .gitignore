@@ -4,3 +4,10 @@ native/bin/
 release/
 *.log
 *.tmp
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
