@@ -84,6 +84,8 @@ button.accent-button:hover:not(:disabled) { transform: translateY(-1px); opacity
 .right-sidebar::-webkit-scrollbar { display: none; }
 .sidebar-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
 .sidebar-actions > button { width: 100%; min-height: 40px; }
+#open-quick-controls { background: #fff; color: #000; border-color: #fff; box-shadow: none; }
+#open-quick-controls:hover:not(:disabled) { background: #e8e8e8; border-color: #e8e8e8; }
 .sidebar-actions > .effect-toggle { justify-content: space-between; padding: 12px 0 0; margin-top: 2px; border-top: 1px solid var(--stroke-soft); }
 .reference-panel { padding-top: 24px; border-top: 1px solid var(--stroke-soft); }
 .reference-panel > p { font-size: 12px; margin-top: 6px; }
