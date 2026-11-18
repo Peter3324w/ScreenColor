@@ -1,12 +1,12 @@
 # Screen Color
 
-A Windows desktop color utility built around Peter's successful HP ProBook 450 G4 / Intel HD 620 experiment. Working name, local development version 0.1.
+A Windows desktop color utility built around Peter's successful HP ProBook 450 G4 / Intel HD 620 experiment. Working name, local development version 0.1.1.
 
 The interface uses [PlayTime's design system](docs/design-system.md): its five themes, custom accent derivation, Iconsax icons, typography, spacing, glass surfaces and component styling. Choose a palette under Settings → Appearance.
 
 ## Open the app
 
-For installation, run `release/Screen-Color-Setup-0.1.0-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
+For installation, run `release/Screen-Color-Setup-0.1.1-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
 
 The instructions below launch the development copy.
 
@@ -79,3 +79,7 @@ Open **Filters** in the sidebar, or **Browse filters** beside Fine-tune your scr
 The active desktop effect also changes the sample images. **Compare samples** turns that effect off for a clean comparison while preserving your chosen values and profile. Selecting a card applies its filter again. The effect switch can also restore the chosen look.
 
 Fine-tune any preset in Adjustments, then use **Save as profile** or **Save current look** to keep your own version. Your profiles appear below the gallery; starter filters cannot be deleted or overwritten. Default and Custom preset one remain available. Quick controls includes all eight filters and your saved profiles, with the same selected look as the full app.
+
+## Next session
+
+The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). Planning is complete; TypeScript implementation has not started.

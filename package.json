@@ -1,7 +1,7 @@
 {
   "name": "screen-color",
   "productName": "Screen Color",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Live desktop color adjustments with saved profiles and compact tray controls",
   "author": "Peter",
