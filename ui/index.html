@@ -32,6 +32,7 @@
     <div class="page-heading"><div><h1>Color adjustments</h1><p>A richer picture. On your terms.</p></div></div>
     <div class="workspace">
      <section class="controls-panel" aria-label="Color controls">
+      <div class="preview-dock">
       <figure class="image-preview" aria-label="Image color preview">
        <div class="preview-toolbar"><span id="preview-image-name">Your wallpaper</span><div class="preview-comparison" role="group" aria-label="Compare color effect"><button id="preview-original" aria-pressed="true">Original</button><button id="preview-adjusted" aria-pressed="false">Adjusted</button></div></div>
        <div class="image-stage"><img id="preview-image" src="preview-default.jpg" alt="Wallpaper preview for comparing purple, green and orange colors"><span id="preview-badge" class="preview-badge">Original</span></div>
@@ -39,6 +40,7 @@
        <input id="preview-file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" hidden>
        <p id="image-preview-error" class="image-preview-error" role="status" hidden></p>
       </figure>
+      </div>
       <div class="section-heading"><h2>Fine-tune your screen</h2><button class="text-button" data-view="profiles">Browse filters</button></div><p id="profile-label" class="current-look">Default</p><div id="controls"></div><p class="helper-copy">Changes apply as you drag. Your chosen look stays on until you turn it off.</p>
      </section>
 
