@@ -84,6 +84,20 @@ The active desktop effect also changes the sample images. **Compare samples** tu
 
 Fine-tune any preset in Adjustments, then use **Save as profile** or **Save current look** to keep your own version. Your profiles appear below the gallery; starter filters cannot be deleted or overwritten. Default and Custom preset one remain available. Quick controls includes all eight filters and your saved profiles, with the same selected look as the full app.
 
+## Updates, interface tour and support prompt (development)
+
+These additions are in the source version. The published **0.1.1 installer predates them**; installing that release will not add these features.
+
+- Screen Color checks its public GitHub releases on launch and every six hours. A newer stable Windows x64 release appears in the app, Quick controls and, when Windows allows it, a desktop notification. Settings and the tray menu also offer **Check for updates**. Checking reads a small release response; **Download update** opens the installer download only when you choose it. Nothing downloads or installs automatically.
+- The first time you open the full workspace, a welcome prompt offers a nine-step interface tour. It explains image comparison, adjustments, filters, profiles, original colors, tray controls and settings without changing your colors. Skip or finish it at any time, and use **Settings → Replay interface tour** to revisit it.
+- After the fourth deliberate app launch, a one-time invitation appears when the full workspace is visible. Windows background startup, renderer reloads and tray clicks do not count. Choose the green **Contribute to the PC fund** button, **Give feedback**, **Browse more Cave apps**, or **Not now**. The contribution button currently opens Peter's Cave's support page; it does not collect a payment inside the app.
+
+Tour completion, launch count and invitation/update dismissal preferences stay in `%APPDATA%\ScreenColor\experience.json`, with an atomic write and backup. They are separate from your saved color profiles. Prompts wait until an existing dialog or tour closes.
+
+The source version also corrects Windows startup registration detection and command quoting. It preserves startup disabling made in Windows Settings instead of turning it back on each time the app launches. The warning in 0.1.1 can appear even when its named startup entry is present; the fix ships with the next installer.
+
+Verification details and limitations: [notifications, tour and startup checks](docs/notifications-tour-verification.md).
+
 ## Next session
 
 The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). Planning is complete; TypeScript implementation has not started.

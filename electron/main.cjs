@@ -1,9 +1,12 @@
 'use strict';
-const {app,BrowserWindow,ipcMain,Tray,Menu,nativeImage,globalShortcut,powerMonitor,screen,shell}=require('electron');
+const {app,BrowserWindow,ipcMain,Tray,Menu,nativeImage,globalShortcut,powerMonitor,screen,shell,Notification}=require('electron');
 const fs=require('node:fs');const path=require('node:path');const {pathToFileURL}=require('node:url');const {EventEmitter}=require('node:events');
 const {Store}=require('../lib/store.cjs');const {NativeBridge}=require('../lib/bridge.cjs');const {Controller}=require('../lib/controller.cjs');
 const {Popup}=require('./popup.cjs');
 const {supportURL}=require('../lib/support.cjs');
+const {ExperienceStore}=require('../lib/experience.cjs');
+const {UpdateChecker}=require('../lib/updates.cjs');
+const {StartupRegistration}=require('../lib/startup.cjs');
 const {startupOptions:makeStartupOptions,runtimePaths}=require('../lib/platform.cjs');
 const root=path.resolve(__dirname,'..');const smoke=process.argv.includes('--smoke');
 if(smoke)app.disableHardwareAcceleration();
@@ -15,24 +18,38 @@ log('Main process started; smoke='+smoke);
 process.on('uncaughtException',error=>{log(error.stack);console.error(error);app.exit(1);});
 app.setName('Screen Color');app.setAppUserModelId('Peter.ScreenColor');
 // Packaged and source apps deliberately share ScreenColor userData; smoke stays isolated.
-let window,popup,tray,controller,quitting=false,shortcut=false,reapplyTimer,watcher;
+let window,popup,tray,controller,experience,updater,startupRegistration,quitting=false,shortcut=false,reapplyTimer,watcher,updateTimer,initialized=false;
+let startupInfo={registered:false,enabled:false},startupWarning=null,preferencesQueue=Promise.resolve();const pendingLaunches=[],notifiedThisProcess=new Set();
 const uiFile=path.join(root,'ui','index.html'),uiURL=pathToFileURL(uiFile).href;
 log('Acquiring instance lock');if(!app.requestSingleInstanceLock()){log('Another instance owns the app lock.');app.quit();}else{
  log('Instance lock acquired');
- app.on('second-instance',(_event,argv)=>{if(argv.includes('--full-app'))showWindow();else showPopup().catch(error=>log(error.message));});
+ app.on('second-instance',(_event,argv)=>{if(argv.includes('--background'))return;if(!initialized)pendingLaunches.push(argv);else handleLaunch(argv);});
  app.whenReady().then(start).catch(error=>{log(error.stack);console.error(error);app.exit(1);});
 }
-function showWindow(){if(!window||window.isDestroyed())return;popup?.hide();if(window.isMinimized())window.restore();window.show();window.focus();}
+function showWindow(){if(!window||window.isDestroyed())return;popup?.hide();if(window.isMinimized())window.restore();window.show();window.focus();if(initialized)publish();}
+function handleLaunch(argv){try{experience.recordLaunch(false);}catch(error){log('Launch count could not be saved: '+error.message);}if(argv.includes('--full-app'))showWindow();else showPopup().catch(error=>log(error.message));publish();}
 async function showPopup(bounds,reconnect=true){if(!popup)return;if(window&&!window.isDestroyed())window.hide();await popup.show(bounds||tray?.getBounds());if(reconnect&&controller&&!controller.ready)await controller.dispatch('retry');}
 function startupOptions(){return makeStartupOptions({packaged:app.isPackaged,executable:process.execPath,root});}
-function startupEnabled(){try{return app.getLoginItemSettings(startupOptions()).openAtLogin;}catch{return false;}}
-function snapshot(){return {...controller.snapshot(),popupPinned:popup?.pinned||false,startupActual:startupEnabled(),shortcutAvailable:shortcut,development:!app.isPackaged,version:app.getVersion(),smoke,displays:screen.getAllDisplays().map((d,i)=>({id:d.id,name:d.label||`Display ${i+1}`,width:d.size.width,height:d.size.height}))};}
+function startupEnabled(){return startupInfo.enabled;}
+function refreshStartup(){if(smoke)return;try{startupInfo=startupRegistration.status();startupWarning=null;}catch(error){startupWarning='Could not read Start with Windows. Check Startup apps in Windows Settings.';log('Startup check failed: '+error.message);}}
+function snapshot(){return {...controller.snapshot(),popupPinned:popup?.pinned||false,startupActual:startupEnabled(),startupWarning,shortcutAvailable:shortcut,development:!app.isPackaged,version:app.getVersion(),smoke,workspaceVisible:!!window?.isVisible(),experience:experience?.snapshot(),experiencePrompts:!smoke||process.argv.includes('--experience-test'),updates:updater?.snapshot(),displays:screen.getAllDisplays().map((d,i)=>({id:d.id,name:d.label||`Display ${i+1}`,width:d.size.width,height:d.size.height}))};}
 async function configureInstalledStartup(){
  if(!app.isPackaged||smoke)return;
- try{const marker=path.join(app.getPath('userData'),'installed-startup.ini');const firstInstall=!fs.existsSync(marker);const configured=firstInstall?null:fs.readFileSync(marker,'utf8').match(/Enabled=(0|1)/);const enabled=firstInstall||((configured?configured[1]==='1':controller.state.preferences.startup));app.setLoginItemSettings({...startupOptions(),openAtLogin:enabled});if(startupEnabled()!==enabled)throw new Error('Windows did not confirm the startup registration.');if(firstInstall){const warning=controller.warning;if(warning){const stamp=Date.now();for(const name of ['settings.json','settings.json.bak']){const file=path.join(app.getPath('userData'),name);if(fs.existsSync(file))fs.copyFileSync(file,file+'.recovered-'+stamp);}}await controller.dispatch('preferences',{...controller.state.preferences,startup:true});controller.warning=warning;writeStartupMarker(true);}}
- catch(error){controller.warning=[controller.warning,'Windows startup could not be configured: '+error.message].filter(Boolean).join(' ');log(controller.warning);}
+ try{const marker=path.join(app.getPath('userData'),'installed-startup.ini');const firstInstall=!fs.existsSync(marker);const original=startupRegistration.registry.read();startupInfo=startupRegistration.repairLegacy();if(firstInstall&&original.command===null)await startupRegistration.set(true,async()=>{});refreshStartup();if(firstInstall){const warning=controller.warning;if(warning){const stamp=Date.now();for(const name of ['settings.json','settings.json.bak']){const file=path.join(app.getPath('userData'),name);if(fs.existsSync(file))fs.copyFileSync(file,file+'.recovered-'+stamp);}}await controller.dispatch('preferences',{...controller.state.preferences,startup:startupEnabled()});controller.warning=warning;writeStartupMarker(startupEnabled());}}
+ catch(error){startupWarning='Start with Windows could not be configured. You can retry in Settings.';log('Windows startup configuration: '+error.message);}
 }
 function writeStartupMarker(enabled){if(app.isPackaged&&!smoke)fs.writeFileSync(path.join(app.getPath('userData'),'installed-startup.ini'),'[Startup]\r\nEnabled='+(enabled?'1':'0')+'\r\n','utf8');}
+function changePreferences(payload){
+ const task=preferencesQueue.then(async()=>{
+  refreshStartup();
+  if(smoke&&payload.startup!==startupEnabled())throw new Error('Startup changes are disabled in the isolated smoke test.');
+  if(payload.startup===startupEnabled()){await controller.dispatch('preferences',payload);return;}
+  const marker=path.join(app.getPath('userData'),'installed-startup.ini'),previousMarker=fs.existsSync(marker)?fs.readFileSync(marker):null;
+  try{await startupRegistration.set(payload.startup,async()=>{writeStartupMarker(payload.startup);await controller.dispatch('preferences',payload);});refreshStartup();}
+  catch(error){if(app.isPackaged){if(previousMarker)fs.writeFileSync(marker,previousMarker);else if(fs.existsSync(marker))fs.unlinkSync(marker);}refreshStartup();throw error;}
+ });
+ preferencesQueue=task.catch(()=>{});return task;
+}
 function publish(){for(const target of [window,popup?.window])if(target&&!target.isDestroyed())target.webContents.send('screen-color:update',snapshot());updateTray();}
 function icon(){const size=32,buffer=Buffer.alloc(size*size*4);for(let y=0;y<size;y++)for(let x=0;x<size;x++){const i=(y*size+x)*4;const ring=Math.hypot(x-15.5,y-15.5);const on=ring>7&&ring<13;buffer[i]=buffer[i+1]=buffer[i+2]=buffer[i+3]=on?255:0;}return nativeImage.createFromBitmap(buffer,{width:size,height:size});}
 function updateTray(){if(!tray||!controller)return;const state=controller.snapshot();tray.setToolTip(`Screen Color - ${state.enabled?'effect on':'original colors'}`);tray.setContextMenu(Menu.buildFromTemplate([
@@ -40,11 +57,16 @@ function updateTray(){if(!tray||!controller)return;const state=controller.snapsh
  {label:'Color effect',type:'checkbox',checked:state.enabled,enabled:state.ready,click:item=>controller.dispatch('toggle',item.checked).catch(()=>{})},
  {label:'Custom preset one',enabled:state.ready,click:()=>controller.dispatch('preset','reference').catch(()=>{})},
  {label:'Original colors',enabled:state.ready,click:()=>controller.dispatch('toggle',false).catch(()=>{})},
+ {label:updater?.snapshot().available?'Update available — open app':'Check for updates',click:()=>{showWindow();updater.check().catch(error=>log(error.message));}},
  {type:'separator'},{label:'Quit and restore colors',click:()=>app.quit()}
  ]));}
 function validateSender(event){const owner=event.sender===window?.webContents?window:event.sender===popup?.window?.webContents?popup.window:null;const expected=owner===window?uiURL:popup?.url;if(!owner||owner.isDestroyed()||event.senderFrame!==owner.webContents.mainFrame||event.senderFrame.url!==expected)throw new Error('Untrusted app frame.');}
 async function start(){
  log('Electron ready; preparing windows');
+ experience=new ExperienceStore(path.join(app.getPath('userData'),'experience.json'));if(!smoke)try{experience.recordLaunch(process.argv.includes('--background'));}catch(error){log('Experience save: '+error.message);}
+ startupRegistration=new StartupRegistration(startupOptions());refreshStartup();
+ updater=new UpdateChecker({current:app.getVersion(),...(smoke?{fetch:async()=>new Response(JSON.stringify({tag_name:'v1000.0.0',draft:false,prerelease:false,html_url:'https://github.com/Peter3324w/ScreenColor/releases/tag/v1000.0.0',assets:[{name:'Screen-Color-Setup-1000.0.0-x64.exe',size:82543707,browser_download_url:'https://github.com/Peter3324w/ScreenColor/releases/download/v1000.0.0/Screen-Color-Setup-1000.0.0-x64.exe'}]}))}:{})});
+ updater.on('state',()=>{if(initialized){publish();notifyUpdate();}});
  let bridge;
  if(smoke){bridge=new EventEmitter();bridge.start=async()=>{};bridge.request=async()=>({ok:true});bridge.close=async()=>{};}
  else bridge=new NativeBridge(paths.native,path.join(app.getPath('userData'),'recovery'));
@@ -53,11 +75,17 @@ async function start(){
  log('Creating full window');window=new BrowserWindow({width:1020,height:760,minWidth:760,minHeight:620,show:false,title:'Screen Color',backgroundColor:'#000000',autoHideMenuBar:true,icon:icon(),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});log('Full window created');
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.webContents.on('will-navigate',(event,url)=>{if(url!==uiURL)event.preventDefault();});
  window.on('close',event=>{if(quitting)return;event.preventDefault();if(controller.state.preferences.minimizeToTray&&tray)window.hide();else app.quit();});
+ window.on('focus',()=>{if(initialized){refreshStartup();publish();}});window.on('hide',()=>{if(initialized)publish();});
  popup=new Popup(root,publish);log('Popup window created');
  ipcMain.handle('screen-color:state',event=>{validateSender(event);return snapshot();});
  ipcMain.handle('screen-color:action',async(event,type,payload)=>{
   validateSender(event);try{
    if(type==='openSupport'){await shell.openExternal(supportURL(payload));return {ok:true,state:snapshot()};}
+   if(type==='finishTour'){experience.finishTour();publish();return {ok:true,state:snapshot()};}
+   if(type==='dismissSupport'){experience.dismissSupport();publish();return {ok:true,state:snapshot()};}
+   if(type==='checkUpdates'){await updater.check();return {ok:true,state:snapshot()};}
+   if(type==='downloadUpdate'){const update=updater.snapshot().available;if(!update)throw new Error('No update is available. Check for updates first.');await shell.openExternal(update.url);return {ok:true,state:snapshot()};}
+   if(type==='dismissUpdate'){const update=updater.snapshot().available;if(!update)throw new Error('No update notification to dismiss.');experience.dismissUpdate(update.version);publish();return {ok:true,state:snapshot()};}
    if(type==='quit'){setImmediate(()=>app.quit());return {ok:true,state:snapshot()};}
    if(type==='openFullApp'){showWindow();return {ok:true,state:snapshot()};}
    if(type==='openPopup'){await showPopup();return {ok:true,state:snapshot()};}
@@ -65,8 +93,7 @@ async function start(){
    if(type==='pinPopup'){if(typeof payload!=='boolean')throw new Error('Invalid pin setting.');popup.setPinned(payload);return {ok:true,state:snapshot()};}
    if(type==='preferences'){
     if(!payload||typeof payload.startup!=='boolean'||typeof payload.minimizeToTray!=='boolean')throw new Error('Invalid preferences.');
-    const previous=startupEnabled();try{app.setLoginItemSettings({...startupOptions(),openAtLogin:payload.startup});if(startupEnabled()!==payload.startup)throw new Error('Windows did not retain the startup setting.');await controller.dispatch(type,payload);writeStartupMarker(payload.startup);}
-    catch(error){app.setLoginItemSettings({...startupOptions(),openAtLogin:previous});throw error;}
+    await changePreferences(payload);
    }else await controller.dispatch(type,payload);
    return {ok:true,state:snapshot()};
   }catch(error){return {ok:false,error:error.message,state:snapshot()};}
@@ -75,13 +102,17 @@ async function start(){
  shortcut=globalShortcut.register('Control+Alt+F12',()=>controller.dispatch('toggle',false).catch(()=>{}));
  const reapply=()=>{clearTimeout(reapplyTimer);reapplyTimer=setTimeout(()=>controller.dispatch('reapply').catch(()=>{}),800);};
  powerMonitor.on('resume',reapply);screen.on('display-added',reapply);screen.on('display-removed',reapply);screen.on('display-metrics-changed',reapply);
- if(!app.isPackaged)watcher=fs.watch(path.join(root,'ui'),(_event,file)=>{if(file&&/\.(html|css|js)$/.test(file)){clearTimeout(start.reloadTimer);start.reloadTimer=setTimeout(()=>{for(const target of [window,popup.window])if(!target.isDestroyed())target.webContents.reloadIgnoringCache();},160);}});
+ if(!app.isPackaged&&!smoke)watcher=fs.watch(path.join(root,'ui'),(_event,file)=>{if(file&&/\.(html|css|js)$/.test(file)){clearTimeout(start.reloadTimer);start.reloadTimer=setTimeout(()=>{for(const target of [window,popup.window])if(!target.isDestroyed())target.webContents.reloadIgnoringCache();},160);}});
  log('Loading '+uiURL);await Promise.all([window.loadURL(uiURL),popup.ready]);await configureInstalledStartup();await controller.init();publish();
  log('App ready; color engine ready='+controller.ready+(controller.error?'; error='+controller.error:''));
  if(!smoke&&!app.isPackaged)setTimeout(()=>{if(!window.isDestroyed())window.webContents.capturePage().then(image=>fs.writeFileSync(path.join(diagnosticsDir,'app-window.png'),image.toPNG())).catch(error=>log('Capture unavailable: '+error.message));},500);
+ initialized=true;
  if(!process.argv.includes('--background')||controller.error){if(process.argv.includes('--full-app'))showWindow();else await showPopup(undefined,false);}
+ for(const argv of pendingLaunches.splice(0))handleLaunch(argv);
+ if(!smoke){updater.check().catch(error=>log(error.message));updateTimer=setInterval(()=>updater.check().catch(error=>log(error.message)),6*60*60*1000);updateTimer.unref();}
  if(smoke)await runSmoke();
 }
+function notifyUpdate(){const update=updater.snapshot().available;if(smoke||!update||experience.snapshot().notifiedVersion===update.version||notifiedThisProcess.has(update.version))return;notifiedThisProcess.add(update.version);try{if(!Notification.isSupported())return;const notification=new Notification({title:'Screen Color update available',body:`Version ${update.version} is ready. Open Screen Color to download it.`,silent:true});notification.on('click',showWindow);notification.on('failed',(_event,error)=>log('Update notification: '+error));notification.show();try{experience.markNotified(update.version);}catch(error){log('Notification preference save: '+error.message);}}catch(error){log('Update notification unavailable: '+error.message);}}
 async function runSmoke(){
  const results=[];const errors=[];const step=check=>{results.push(check);log('Smoke: '+check);};window.webContents.on('console-message',(_event,level,message)=>{if(level>=3)errors.push(message);});
  try{
@@ -156,5 +187,5 @@ async function runSmoke(){
  }catch(error){fs.writeFileSync(path.join(diagnosticsDir,'smoke.json'),JSON.stringify({ok:false,error:error.stack,checks:results},null,2));process.exitCode=1;}
  app.quit();
 }
-app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;clearTimeout(reapplyTimer);watcher?.close();globalShortcut.unregisterAll();Promise.resolve(controller?.close()).catch(console.error).finally(()=>{tray?.destroy();app.exit(process.exitCode||0);});});
+app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;clearTimeout(reapplyTimer);clearInterval(updateTimer);watcher?.close();globalShortcut.unregisterAll();Promise.resolve(controller?.close()).catch(console.error).finally(()=>{tray?.destroy();app.exit(process.exitCode||0);});});
 app.on('window-all-closed',()=>{if(!tray)app.quit();});

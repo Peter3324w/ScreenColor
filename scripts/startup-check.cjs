@@ -1,0 +1,8 @@
+'use strict';
+// Reversible verification against its own uniquely named registry value only.
+const assert=require('node:assert/strict');const {randomUUID}=require('node:crypto');
+const {StartupRegistration,WindowsRegistry}=require('../lib/startup.cjs');
+(async()=>{const name='Screen Color Verification '+randomUUID(),registry=new WindowsRegistry(name),original=registry.read();const registration=new StartupRegistration({name,path:'"'+process.execPath+'"',args:['--background']},registry);try{
+ const legacy={command:process.execPath+' --background',approval:'030000000000000000000000'};registry.write(legacy);assert.equal(registration.status().enabled,false);registration.repairLegacy();assert.equal(registry.read().approval,legacy.approval);assert.equal(registry.read().command,'"'+process.execPath+'" --background');assert.equal(registration.status().registered,true);
+ await assert.rejects(registration.set(true,async()=>{throw new Error('Simulated persistence failure');}),/Simulated/);assert.equal(registry.read().approval,legacy.approval);assert.equal(registration.status().enabled,false);await registration.set(true,async()=>{});assert.equal(registration.status().enabled,true);await registration.set(false,async()=>{});assert.equal(registration.status().registered,false);console.log('PASS: actual Windows registry quote repair, disabled approval preservation, exact rollback and enable/disable; only a temporary unique startup entry was used.');
+ }finally{registry.write(original);assert.deepEqual(registry.read(),original);}})().catch(error=>{console.error(error.message);process.exitCode=1;});
