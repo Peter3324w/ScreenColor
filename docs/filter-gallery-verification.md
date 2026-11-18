@@ -17,3 +17,9 @@ Desktop samples are affected by the global native color effect. Review caught th
 - JavaScript syntax and git diff checks pass. The mechanical design scan reports incumbent color-study label contrast/size and nested-surface warnings; no visual identity rewrite was attempted.
 
 Matching before/after captures: UI-History/screen-color/010-starter-filter-gallery. No new dependencies, downloads, production builds or packaging.
+
+## Adjustment shortcuts
+
+Peter subsequently requested four options at the bottom of Adjustments with a white Browse more filters button underneath. Added Natural, Vivid, Golden and Cinema there, reusing the gallery sample matrix, image source, selected/disabled state, comparison action and existing preset handler. The white button opens the full Filters page at the top. Four cards form one row on wider windows and two rows on narrow windows.
+
+Verified all four apply and synchronize with the full gallery, the button is white and navigates correctly, the 760px layout fits and remains clickable, and there are no browser page errors. Updated the existing filter check to scope full-gallery selectors separately from the four shortcuts. Full gallery, design check and all 22 Electron smoke checks pass. Matching captures are in UI-History/screen-color/011-adjustment-filter-shortcuts.

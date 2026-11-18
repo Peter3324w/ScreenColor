@@ -61,11 +61,12 @@ function setupFilters(){
   const badge=document.createElement('span');badge.className='filter-selected';badge.textContent='Selected';sample.append(image,badge);
   const copy=document.createElement('span');copy.className='filter-copy';const name=document.createElement('strong');name.textContent=preset.name;const description=document.createElement('span');description.textContent=preset.description;copy.append(name,description);card.append(sample,copy);
   card.addEventListener('click',()=>action('preset',preset.id));gallery.append(card);
+  if(['filter-natural','filter-vivid','filter-golden','filter-cinema'].includes(preset.id)){const shortcut=card.cloneNode(true);shortcut.addEventListener('click',()=>action('preset',preset.id));$('#adjustment-filter-gallery').append(shortcut);}
  }
- new MutationObserver(()=>{const source=$('#preview-image').getAttribute('src');for(const image of gallery.querySelectorAll('img'))image.src=source;}).observe($('#preview-image'),{attributes:true,attributeFilter:['src']});
+ new MutationObserver(()=>{const source=$('#preview-image').getAttribute('src');for(const image of document.querySelectorAll('.filter-card img'))image.src=source;}).observe($('#preview-image'),{attributes:true,attributeFilter:['src']});
 }
 function renderFilters(){
- $('#filter-compare').hidden=!desktop||!state.enabled;$('#compare-filters').disabled=!state.ready;
+ for(const hint of document.querySelectorAll('.filter-compare'))hint.hidden=!desktop||!state.enabled;for(const button of document.querySelectorAll('[data-compare-filters]'))button.disabled=!state.ready;
  for(const card of document.querySelectorAll('.filter-card')){card.disabled=!state.ready;card.setAttribute('aria-pressed',String(state.profileId===card.dataset.filter));}
 }
 function renderProfiles(){
@@ -81,7 +82,7 @@ setupControls();setupFilters();for(const button of document.querySelectorAll('[d
 for(const button of document.querySelectorAll('[data-support]'))button.addEventListener('click',async()=>{const error=$('#view-feedback').hidden?$('#sidebar-support-error'):$('#feedback-error');error.hidden=true;button.disabled=true;try{const result=await api.action('openSupport',button.dataset.support);if(!result.ok)throw new Error(result.error);}catch{error.textContent='Could not open your browser. Please try again.';error.hidden=false;}finally{button.disabled=false;}});
 $('#effect-toggle').addEventListener('click',()=>action('toggle',!state.enabled));$('#reference').addEventListener('click',()=>action('preset','reference'));$('#reset-all').addEventListener('click',()=>action('reset'));$('#timed-preview').addEventListener('click',()=>action('preview'));$('#retry').addEventListener('click',()=>action('retry'));
 $('#preview-original').addEventListener('click',()=>action('toggle',false));$('#preview-adjusted').addEventListener('click',()=>action('toggle',true));
-$('#compare-filters').addEventListener('click',()=>action('toggle',false));
+for(const button of document.querySelectorAll('[data-compare-filters]'))button.addEventListener('click',()=>action('toggle',false));
 $('#open-quick-controls').addEventListener('click',()=>action('openPopup'));
 $('#startup').addEventListener('change',()=>action('preferences',{startup:$('#startup').checked,minimizeToTray:state.preferences.minimizeToTray}));$('#minimize').addEventListener('change',()=>action('preferences',{startup:state.startupActual||false,minimizeToTray:$('#minimize').checked}));$('#quit').addEventListener('click',()=>action('quit'));
 function openProfileDialog(){$('#profile-error').textContent='';$('#profile-name').value='';$('#profile-dialog').showModal();$('#profile-name').focus();}

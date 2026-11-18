@@ -86,11 +86,11 @@ async function runSmoke(){
  const results=[];const errors=[];const step=check=>{results.push(check);log('Smoke: '+check);};window.webContents.on('console-message',(_event,level,message)=>{if(level>=3)errors.push(message);});
  try{
   const initial=await window.webContents.executeJavaScript('window.screenColor.getState()');if(initial.smoke!==true)throw new Error('Preload bridge unavailable');step('sandboxed preload state bridge');
-  await window.webContents.executeJavaScript("document.querySelector('.nav-item[data-view=profiles]').click();document.querySelector('[data-filter=filter-cinema]').click()");await new Promise(r=>setTimeout(r,150));
+  await window.webContents.executeJavaScript("document.querySelector('.nav-item[data-view=profiles]').click();document.querySelector('#filter-gallery [data-filter=filter-cinema]').click()");await new Promise(r=>setTimeout(r,150));
   if(controller.snapshot().profileId!=='filter-cinema'||controller.snapshot().values.saturation!==88)throw new Error('Filter gallery did not apply through IPC');
   if(await popup.window.webContents.executeJavaScript("document.querySelector('#quick-profile').value")!=='filter-cinema')throw new Error('Selected filter missing from quick controls');
   window.webContents.reloadIgnoringCache();await new Promise(resolve=>window.webContents.once('did-finish-load',resolve));await new Promise(r=>setTimeout(r,150));
-  if(!await window.webContents.executeJavaScript("document.querySelector('[data-filter=filter-cinema]').getAttribute('aria-pressed')==='true'"))throw new Error('Filter selection did not survive renderer reload');
+  if(!await window.webContents.executeJavaScript("document.querySelector('#filter-gallery [data-filter=filter-cinema]').getAttribute('aria-pressed')==='true'"))throw new Error('Filter selection did not survive renderer reload');
   if(!await window.webContents.executeJavaScript("!document.querySelector('#filter-compare').hidden"))throw new Error('Desktop comparison guidance missing');
   await window.webContents.executeJavaScript("document.querySelector('#compare-filters').click()");await new Promise(r=>setTimeout(r,150));
   if(controller.snapshot().enabled||controller.snapshot().profileId!=='filter-cinema')throw new Error('Sample comparison did not disable the effect while preserving the chosen filter');

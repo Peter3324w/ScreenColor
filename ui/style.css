@@ -130,8 +130,15 @@ button.accent-button:hover:not(:disabled) { transform: translateY(-1px); opacity
 .filter-copy > span { color: var(--muted); font-size: 12px; line-height: 1.5; }
 .saved-looks { margin-bottom: 20px; }
 .saved-looks > h2 { margin-bottom: 8px; }
+.adjustment-filters { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--stroke); }
+.adjustment-filters > h2 { margin-bottom: 8px; }
+.filter-gallery.adjustment-filter-gallery { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.adjustment-filter-gallery .filter-sample { aspect-ratio: 2 / 1; max-height: 140px; }
+.browse-more-filters { display: block; width: 100%; margin-top: 16px; padding: 12px 18px; border: 0; border-radius: 10px; background: #fff; color: #000; font-weight: 600; }
+.browse-more-filters:hover { background: #e8e8e8; }
 @media(max-width:1200px) {
   .filter-gallery { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .filter-gallery.adjustment-filter-gallery { grid-template-columns: repeat(2,minmax(0,1fr)); }
   #view-profiles > .page-heading { align-items: flex-start; flex-wrap: wrap; }
   .profile-row { gap: 12px; padding: 16px; flex-wrap: wrap; }
   .profile-swatch { width: 28px; height: 28px; }
