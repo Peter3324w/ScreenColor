@@ -45,7 +45,6 @@ function render(){
  $('#reference').disabled=!state.ready;$('#timed-preview').disabled=!state.ready||!desktop;$('#reset-all').disabled=!state.ready;
  $('#open-quick-controls').disabled=!desktop;$('#open-quick-controls').title=desktop?'Open compact controls over your desktop':'Quick controls are available in the Electron app.';
  $('#startup').checked=state.startupActual||false;$('#startup').disabled=!desktop;$('#minimize').checked=state.preferences.minimizeToTray;$('#minimize').disabled=!desktop;
- $('.version').textContent='Screen Color \u00b7 v'+(state.version||'0.1.0');
  $('#shortcut-description').textContent=state.shortcutAvailable?'Press the shortcut from any app to turn the effect off.':'Shortcut unavailable. Use the effect switch or the tray menu.';
  $('#display-info').textContent=state.displays?.length?state.displays.map(d=>`${d.name} · ${d.width} × ${d.height}`).join('\n'):'One look across your desktop';
  window.ImagePreview.update(draft,state.enabled,desktop);$('#preview-original').disabled=!state.ready;$('#preview-adjusted').disabled=!state.ready;
