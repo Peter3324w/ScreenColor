@@ -45,7 +45,7 @@ Requires Windows Node 22 or newer and the .NET Framework x64 compiler. Install t
 npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund
 ```
 
-This installs the pinned TypeScript 5.9.3 compiler, Node 22 definitions and their small type dependency, plus esbuild 0.25.12 and its platform binary (about 9.37 MB compressed on Windows x64). It excludes the root packaging dependencies and does not download an Electron runtime. A full root dependency installation is separate and substantially larger. The compiler does not depend on another project's TypeScript cache.
+This installs pinned TypeScript 5.9.3, esbuild 0.25.12 and its platform binary, compatible Node 22.19.2 definitions, and Electron 33.4.11 declarations/dependencies. The compiler-only setup is roughly 12 MB compressed on Windows x64. `--ignore-scripts` prevents Electron's runtime download; the workspace excludes the packaging tools. A full root installation is separate and substantially larger. The compiler does not depend on another project's cache.
 
 The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Production builds and installer packaging remain separate, explicitly requested steps (`build:win` or `build:dir`).
 
@@ -63,7 +63,9 @@ npm run typecheck
 npm run compile:app
 ```
 
-Migrated TypeScript uses strict checking with separate Node/Electron and DOM configurations. All `lib/` modules and the shared matrix/catalog are now typed; shared data/action/API contracts are in `shared/types.ts`. Browser bundles retain their existing globals. Untouched JavaScript remains unchecked during migration. Source maps beside compiled files embed the original sources and resolve back to the project files for debugging. Compilation preserves source files and removes orphaned output after source deletion or renaming.
+Application code uses strict TypeScript with separate Node, Electron and DOM configurations. All core modules, Electron/preload and handwritten renderers are typed; shared data/action/API contracts are in `shared/types.ts`. Browser entries and the sandboxed preload are bundled with esbuild. The matrix/catalog retain their browser globals and come from the same typed source as Node. Source maps embed original source and resolve back to the project files. Compilation preserves source and removes orphaned output after deletion/renaming.
+
+Generated `ui/icons.js`, copied `ui/playtime-appearance.js`, the Electron smoke harness and bootstrap/build/check scripts intentionally remain JavaScript/CommonJS. Narrow declarations describe their application-facing interfaces. No application TypeScript uses `any`, `@ts-ignore`, `@ts-nocheck` or `skipLibCheck`. Node types are pinned because later declarations conflict with Electron 33's `process.noDeprecation` declaration; the Electron compiler configuration includes DOM types required by Electron's upstream declarations, while the core configuration forbids browser globals.
 
 ```powershell
 npm run dev
@@ -78,7 +80,7 @@ node scripts/browser-check.cjs
 node scripts/toolchain-check.cjs
 ```
 
-`npm test` compiles first and runs the existing Node tests against `out/`. Type checking also verifies action/payload contracts and rejects Node globals in renderer code and DOM globals in core code. The Electron smoke check uses an explicitly mocked engine and isolated data; it never changes the screen. Browser/toolchain checks require the preview server; the toolchain check verifies source preservation, maps and compilation/reload of a temporary typed browser script. Browser automation reuses PlayTime's installed Playwright/Chromium without downloads. See [migration verification](docs/typescript-milestone-1-verification.md) for the current results and limits.
+`npm test` compiles first and tests `out/`. Type checking verifies action/payload contracts and rejects Node globals in renderers and DOM globals in core code. Electron smoke uses an explicitly mocked engine and isolated data; it never changes the screen. Browser/toolchain checks require the preview server and reuse PlayTime's installed Playwright/Chromium. The toolchain check covers source preservation, bundled maps, typed browser compilation/reload and stale-output removal. Wait for the preview's listening message or `/health` before running browser checks. See [final migration verification](docs/typescript-migration-verification.md) for results and limits.
 
 ## Data and recovery
 
@@ -118,4 +120,4 @@ Verification details and limitations: [notifications, tour and startup checks](d
 
 ## Next session
 
-The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). Phases 1?2 establish tooling, compiled development paths and the typed shared/core modules. See [Phase 2 verification](docs/typescript-phase-2-verification.md). Electron/preload and renderer conversions follow. The current installer remains unchanged.
+The [migration plan](typescript%20migration%20plan.md) has been implemented through renderer conversion and cleanup. Final isolated verification is recorded [here](docs/typescript-migration-verification.md). Native desktop acceptance with the migrated source requires quitting the currently running installed Screen Color first; the migration checks leave that app and its color effect untouched. The current installer remains unchanged. Production packaging is a separate requested step.

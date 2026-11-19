@@ -8,7 +8,7 @@ require('./compile-app.cjs').compileApp();
 (async()=>{
  fs.mkdirSync(path.join(captureRoot,'out','electron'),{recursive:true});
  for(const folder of ['ui','lib'])if(!fs.existsSync(path.join(captureRoot,'out',folder)))fs.symlinkSync(path.join(root,'out',folder),path.join(captureRoot,'out',folder),'junction');
- for(const file of ['preload.cjs','popup.cjs'])fs.copyFileSync(path.join(root,'out','electron',file),path.join(captureRoot,'out','electron',file));
+ for(const file of ['preload.cjs','popup.cjs','smoke.cjs'])fs.copyFileSync(path.join(root,'out','electron',file),path.join(captureRoot,'out','electron',file));
  fs.copyFileSync(path.join(root,'package.json'),path.join(captureRoot,'package.json'));
  const main=fs.readFileSync(path.join(root,'out/electron/main.cjs'),'utf8');if(!/if\s*\(smoke\)\s*await runSmoke\(\);/.test(main))throw new Error('Smoke hook changed');
  fs.writeFileSync(path.join(captureRoot,'out/electron/main.cjs'),main.replace(/if\s*\(smoke\)\s*await runSmoke\(\);/,'if(smoke)log("Experience integration harness ready");'));

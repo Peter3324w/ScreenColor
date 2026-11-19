@@ -9,20 +9,29 @@ function compileApp(){
  const emitted=new Set();
  const compiler=path.join(root,'node_modules','typescript','bin','tsc');
  if(!fs.existsSync(compiler))throw new Error('Install this project\'s tooling with npm ci --workspace @screen-color/typescript-tooling --ignore-scripts first. No download was attempted.');
- for(const config of ['tsconfig.node.json','tsconfig.dom.json']){
-  const result=spawnSync(process.execPath,[compiler,'-p',path.join(root,config),'--listEmittedFiles'],{cwd:root,encoding:'utf8',windowsHide:true,env:{...process.env,ELECTRON_RUN_AS_NODE:'1'}});
+ for(const config of ['tsconfig.node.json','tsconfig.dom.json','tsconfig.electron.json']){
+  const result=spawnSync(process.execPath,[compiler,'-p',path.join(root,config),config==='tsconfig.dom.json'?'--noEmit':'--listEmittedFiles'],{cwd:root,encoding:'utf8',windowsHide:true,env:{...process.env,ELECTRON_RUN_AS_NODE:'1'}});
   if(result.error||result.status!==0)throw new Error(result.error?.message||result.stdout||result.stderr||'TypeScript compilation failed.');
   for(const line of result.stdout.split(/\r?\n/))if(line.startsWith('TSFILE: '))emitted.add(path.resolve(line.slice(8)));
  }
  const esbuild=require('esbuild');
+ // The intentionally JavaScript smoke harness has a typed declaration; tsc does not emit that pair.
+ const smokeHarness=path.join(output,'electron','smoke.cjs');
+ fs.copyFileSync(path.join(root,'electron','smoke.cjs'),smokeHarness);emitted.add(smokeHarness);
+ const preload=esbuild.buildSync({absWorkingDir:root,entryPoints:['electron/preload.cts'],bundle:true,platform:'node',format:'cjs',external:['electron'],target:'es2022',sourcemap:'linked',sourcesContent:true,outfile:path.join(output,'electron','preload.cjs'),write:false});
+ for(const file of preload.outputFiles){fs.writeFileSync(file.path,file.contents);emitted.add(file.path);}
  for(const [entry,name,globalName] of [['shared/color-matrix.ts','color-matrix','ColorPreview'],['shared/filter-presets.cts','filter-presets','ScreenColorFilters']]){
   const result=esbuild.buildSync({absWorkingDir:root,entryPoints:[entry],bundle:true,platform:'browser',format:'iife',globalName,
    target:'es2022',sourcemap:'linked',sourcesContent:true,outfile:path.join(output,'ui',name+'.js'),write:false});
   for(const file of result.outputFiles){fs.writeFileSync(file.path,file.contents);emitted.add(file.path);}
  }
+ for(const file of fs.readdirSync(path.join(root,'ui')).filter(file=>file.endsWith('.ts')&&!file.endsWith('.d.ts'))){
+  const result=esbuild.buildSync({absWorkingDir:root,entryPoints:[path.join('ui',file)],bundle:true,platform:'browser',format:'iife',target:'es2022',sourcemap:'linked',sourcesContent:true,outfile:path.join(output,'ui',file.slice(0,-3)+'.js'),write:false});
+  for(const file of result.outputFiles){fs.writeFileSync(file.path,file.contents);emitted.add(file.path);}
+ }
  // TypeScript emits JS/TS; copy only the remaining renderer assets. Never write into source.
  for(const file of fs.readdirSync(path.join(root,'ui'))){
-  if(/\.(?:html|css|jpg|png|svg|webp|avif)$/.test(file)){
+  if(/\.(?:js|html|css|jpg|png|svg|webp|avif)$/.test(file)){
    const target=path.join(output,'ui',file);fs.copyFileSync(path.join(root,'ui',file),target);emitted.add(target);
   }
  }

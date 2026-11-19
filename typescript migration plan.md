@@ -6,9 +6,9 @@ Feasible, with moderate implementation effort. The repository has roughly 40 JS/
 
 Keep `native/ColorHost.cs`, HTML, CSS, image assets, native recovery behavior, saved settings and the existing three-column UI intact. Retain Electron's CommonJS runtime compatibility rather than mixing in an unrelated module-system migration. Browser scripts must still run without Node APIs. Prefer a TypeScript compiler for Node/Electron source and a small renderer bundling step only if needed to consume shared modules cleanly. Choose and prove the exact output layout in Phase 1 before renaming more files.
 
-Current verification baseline: 30 Node tests, 22 isolated mock-engine Electron checks, browser feature/design/filter checks, and a renderer repeated-save/failure-retry check. Existing JavaScript and TypeScript may coexist while modules move. Enable strict checking for migrated modules, without demanding that every untouched JavaScript asset be rewritten first.
+Verification now includes 52 Node tests, 22 isolated mock-engine Electron checks, browser feature/design/filter/experience checks, and renderer repeated-save/failure/missing-response retry checks. Application TypeScript is checked strictly; generated/copied JavaScript and documented tooling/harness exceptions remain intentionally separate.
 
-Implementation started on 19 November 2026. The first milestone covers Phase 1, the typed color-value validator and shared data/action/API contracts from Phase 2. The remaining core, Electron and renderer conversions are later milestones.
+Implementation completed across the source/tooling phases on 19 November 2026. Automated verification covers compiled code, isolated Electron, browser behavior, persistence, IPC and development tooling. Actual native-desktop acceptance with the migrated source remains pending while the installed app is running; it is left untouched. Production packaging remains separate.
 
 ## Global constraints
 
@@ -34,7 +34,7 @@ Exit gate: the app and browser preview still run, the baseline checks pass, gene
 
 ## Phase 2 — Shared data and core logic
 
-Targets: `lib/model.cjs`, `lib/controller.cjs`, `lib/store.cjs`, `lib/bridge.cjs`, the color matrix and preset catalog, plus small platform/popup/support helpers.
+Targets: `lib/model.cts`, `lib/controller.cts`, `lib/store.cts`, `lib/bridge.cts`, the shared matrix/catalog and platform/popup/support helpers.
 
 1. Define shared types for five-control values, filter definitions, saved profiles, persisted state, snapshots, native commands/replies and controller actions. Use discriminated action/payload types.
 2. Convert pure value validation, matrix calculations and presets first. Make the catalog consumable by Node and browser outputs from one typed source.
@@ -45,7 +45,7 @@ Exit gate: strict checking passes for converted modules; all Node tests pass, in
 
 ## Phase 3 — Electron and the preload API
 
-Targets: `electron/main.cjs`, `electron/preload.cjs`, `electron/popup.cjs`.
+Targets: `electron/main.cts`, `electron/preload.cts`, `electron/popup.cts`.
 
 1. Convert lifecycle, window/tray ownership and startup code while retaining CommonJS-compatible emitted files.
 2. Define one typed `ScreenColorAPI` for preload and renderers: `getState`, the action/payload/result mapping and subscription cleanup.
@@ -56,7 +56,7 @@ Exit gate: all 22 Electron smoke checks pass against compiled code, the actual d
 
 ## Phase 4 — Main UI, popup and previews
 
-Targets: `ui/app.js`, `ui/popup.js`, `ui/appearance.js`, `ui/image-preview.js` and their declarations/imports.
+Targets: `ui/app.ts`, `ui/popup.ts`, `ui/appearance.ts`, `ui/image-preview.ts`, `ui/experience.ts` and their declarations/imports.
 
 1. Convert renderer entry points and remove duplicated state/value definitions in favor of shared types.
 2. Type DOM elements and events precisely; narrow nullable lookups and validate numeric/file input. Type IndexedDB records and async preview state.
@@ -83,7 +83,7 @@ Start with Phase 1 and the shared value/profile/action types from Phase 2. This 
 - Pinned compiler workspace: install with `npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund` (about 4.85 MB compressed; excludes packaging dependencies/runtime downloads).
 - Separate strict Node/Electron and DOM configs; legacy JavaScript accepted without requiring its conversion yet. Type fixtures cover action/payload mapping and environment isolation.
 - Ignored `out/` layout, source maps, asset copies and orphan-output pruning; launch, preview, tests and smoke consume compiled code. Builder source configuration points at compiled paths; no production packaging performed.
-- `lib/values.cts` owns typed limits/defaults/reference/unknown-input validation; `shared/types.ts` and `types/browser.d.ts` establish shared contracts. The remaining model/state logic, catalog, matrix, store/controller/bridge, Electron/preload and UI source remain JavaScript.
+- At milestone 1, `lib/values.cts` established typed values, and `shared/types.ts`/`types/browser.d.ts` established contracts. Later milestones below completed the remaining application source conversions.
 - Current baseline is 45 Node tests and 22 Electron smoke checks, reflecting the completed notifications/tour/startup work since this plan was first written.
 - Verification record: [docs/typescript-milestone-1-verification.md](docs/typescript-milestone-1-verification.md).
 
@@ -92,7 +92,15 @@ Start with Phase 1 and the shared value/profile/action types from Phase 2. This 
 - All shared/core `lib` modules migrated to strict `.cts`, preserving CommonJS output. Matrix/catalog each have one typed shared source and esbuild browser bundles retaining existing globals.
 - Unknown disk/native/release/controller inputs remain runtime validated. Controller action arguments retain payload correlations; preview generations and backup/startup rollback remain intact.
 - All 49 Node tests, strict checks, 22 isolated Electron checks, browser suites, existing-live-settings compatibility and toolchain checks passed. Read-only review clear.
-- See [docs/typescript-phase-2-verification.md](docs/typescript-phase-2-verification.md). Phases 3–5 remain.
+- See [docs/typescript-phase-2-verification.md](docs/typescript-phase-2-verification.md).
+
+### Phases 3–5 implementation
+
+- Electron main/preload/popup and all handwritten renderers use strict TypeScript. The shared API maps action/payload/result types; unknown IPC snapshots/results and native responses are runtime validated.
+- Browser entries and sandboxed preload are bundled; the preload externalizes only Electron. Node remains CommonJS. HTML/CSS/native C#/assets/profile format are preserved.
+- Separate Node/Electron/DOM configurations retain environment checks. Node type definitions are pinned to 22.19.2 for Electron 33 compatibility rather than suppressing declaration checks.
+- Intentional JS exceptions: generated icons, copied PlayTime appearance utilities, Electron smoke harness and development/build/test/bootstrap scripts. These are documented instead of mechanically converting generators or harnesses.
+- Final verification: [docs/typescript-migration-verification.md](docs/typescript-migration-verification.md). The Phase 3 actual native-connection acceptance gate remains pending while the installed engine is running. No production build/installer was run.
 
 ## References
 
