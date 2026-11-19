@@ -3,7 +3,7 @@ import type {ColorValues,ColorControl,ScreenColorSnapshot,ActionArguments,Profil
 import {DEFAULT_VALUES as neutral,REFERENCE as reference} from '../lib/values.cjs';
 import filters = require('../shared/filter-presets.cjs');
 import {supportDestination} from '../lib/support.cjs';
-import {createBrowserAPI} from './browser-api';
+import {createBrowserAPI,createInitialState} from './browser-api';
 'use strict';
 const definitions: {key: ColorControl;label: string;min: number;max: number;neutral: number;unit: string;help: string;ends: [string,string]}[]=[
  {key:'saturation',label:'Saturation',min:0,max:200,neutral:100,unit:'%',help:'Bring color intensity forward.',ends:['Muted','Vivid']},
@@ -13,7 +13,7 @@ const definitions: {key: ColorControl;label: string;min: number;max: number;neut
  {key:'tint',label:'Tint',min:-100,max:100,neutral:0,unit:'',help:'Balance a green or magenta color cast.',ends:['Greener','More magenta']}
 ];
 
-let state: ScreenColorSnapshot,draft: ColorValues={...neutral},pending: ColorValues|null=null,busy=false,savingProfile=false,currentView='adjustments';
+let state: ScreenColorSnapshot={...createInitialState(),ready:false},draft: ColorValues={...neutral},pending: ColorValues|null=null,busy=false,savingProfile=false,currentView='adjustments',actionError: string|null=null;
 const desktop=!!window.screenColor;
 const api=window.screenColor||createBrowserAPI();
 function setupControls(){
@@ -29,22 +29,23 @@ function setupControls(){
   row.append(header,slider,ends,help);$('#controls').append(row);
  }
 }
-async function flush(){if(busy)return;busy=true;try{while(pending){const next=pending;pending=null;const response=await api.action('values',next);if(!response||!response.state)throw new Error('The app did not return its state. Please retry.');state=response.state;if(!response.ok){pending=null;showError(response.error);break;}render();}}catch(error){pending=null;showError(message(error));}finally{busy=false;if(state){draft={...state.values};render();}}}
+async function flush(){if(busy)return;busy=true;try{while(pending){const next=pending;pending=null;const response=await api.action('values',next);if(!response||!response.state)throw new Error('The app did not return its state. Please retry.');state=response.state;if(!response.ok){pending=null;showError(response.error);break;}actionError=null;render();}}catch(error){pending=null;showError(message(error));}finally{busy=false;if(state){draft={...state.values};render();}}}
 async function action(...args: ActionArguments){
  // Drain live slider updates before a toggle/profile action so its final state wins.
  while(busy)await new Promise(resolve=>setTimeout(resolve,15));
- try{const response=await api.action(...args);if(!response||!response.state)throw new Error('The app did not return its state. Please retry.');state=response.state;if(!response.ok){draft={...state.values};render();showError(response.error);return false;}draft={...state.values};render();return true;}catch(error){showError(message(error));return false;}
+ try{const response=await api.action(...args);if(!response||!response.state)throw new Error('The app did not return its state. Please retry.');state=response.state;if(!response.ok){draft={...state.values};render();showError(response.error);return false;}actionError=null;draft={...state.values};render();return true;}catch(error){showError(message(error));return false;}
 }
-function showError(message: string){$('#error-text').textContent=message;$('#error-banner').hidden=false;$('#saved-status').textContent='Change could not be applied';}
+function showError(message: string){actionError=state.error===message?null:message;$('#error-text').textContent=message;$('#error-banner').hidden=false;$('#saved-status').textContent='Change could not be applied';}
 function render(){
  if(!state)return;if(!busy)draft={...state.values};
  for(const d of definitions){const row=$(`[data-key="${d.key}"]`);for(const input of row.querySelectorAll('input')){if(document.activeElement!==input)input.value=String(draft[d.key]);input.disabled=!state.ready;}$<HTMLButtonElement>('button',row).disabled=!state.ready;}
  $<HTMLButtonElement>('#effect-toggle').setAttribute('aria-checked',String(state.enabled));$<HTMLButtonElement>('#effect-toggle').disabled=!state.ready;$('#effect-text').textContent=state.enabled?'Effect on':'Effect off';
- const connection=$('#connection');connection.replaceChildren();const dot=document.createElement('i');dot.className='status-dot'+(state.ready?' connected':'');connection.append(dot,document.createTextNode(!desktop?'Browser preview':state.smoke?'Interface smoke test':state.ready?'Color engine connected':'Color engine unavailable'));
- $('#error-banner').hidden=!state.error;if(state.error)$('#error-text').textContent=state.error;$<HTMLButtonElement>('#retry').hidden=state.ready;
+ const error=state.error||actionError;
+ const connection=$('#connection');connection.replaceChildren();const dot=document.createElement('i');dot.className='status-dot'+(state.ready?' connected':'');connection.append(dot,document.createTextNode(!desktop?'Browser preview':state.smoke?'Interface smoke test':state.ready?'Color engine connected':error?'Color engine unavailable':'Connecting to color engine'));
+ $('#error-banner').hidden=!error;if(error)$('#error-text').textContent=error;$<HTMLButtonElement>('#retry').hidden=state.ready;
  $('#warning-banner').hidden=!state.warning;if(state.warning)$('#warning-banner').textContent=state.warning;
  $('#profile-label').textContent=state.profileId==='reference'?'Custom preset one':state.profileId==='neutral'?'Default':filters.find(p=>p.id===state.profileId)?.name||state.profiles.find(p=>p.id===state.profileId)?.name||'Custom adjustments';
- $('#saved-status').textContent=!desktop?'Preview only · no desktop changes':state.error?'Change could not be applied':state.previewUntil?'Timed preview active':'Saved on this PC';
+ $('#saved-status').textContent=!desktop?'Preview only · no desktop changes':error?'Change could not be applied':state.previewUntil?'Timed preview active':'Saved on this PC';
  $<HTMLButtonElement>('#reference').disabled=!state.ready;$<HTMLButtonElement>('#timed-preview').disabled=!state.ready||!desktop;$<HTMLButtonElement>('#reset-all').disabled=!state.ready;
  $<HTMLButtonElement>('#open-quick-controls').disabled=!desktop;$<HTMLButtonElement>('#open-quick-controls').title=desktop?'Open compact controls over your desktop':'Quick controls are available in the Electron app.';
  $<HTMLInputElement>('#startup').checked=state.startupActual||false;$<HTMLInputElement>('#startup').disabled=!desktop;$<HTMLInputElement>('#minimize').checked=state.preferences.minimizeToTray;$<HTMLInputElement>('#minimize').disabled=!desktop;
@@ -90,6 +91,6 @@ $<HTMLInputElement>('#startup').addEventListener('change',()=>action('preference
 function openProfileDialog(){$('#profile-error').textContent='';$<HTMLInputElement>('#profile-name').value='';$<HTMLDialogElement>('#profile-dialog').showModal();$<HTMLInputElement>('#profile-name').focus();}
 $<HTMLButtonElement>('#save-profile').addEventListener('click',openProfileDialog);$<HTMLButtonElement>('#save-profile-alt').addEventListener('click',openProfileDialog);$<HTMLButtonElement>('#cancel-profile').addEventListener('click',()=>$<HTMLDialogElement>('#profile-dialog').close());
 $<HTMLFormElement>('#profile-form').addEventListener('submit',async event=>{event.preventDefault();if(savingProfile)return;savingProfile=true;const submit=$<HTMLButtonElement>('#profile-form button[type=submit]');submit.disabled=true;$('#profile-error').textContent='';try{if(await action('saveProfile',$<HTMLInputElement>('#profile-name').value))$<HTMLDialogElement>('#profile-dialog').close();else $('#profile-error').textContent='Could not save this profile. Check the message above.';}finally{savingProfile=false;submit.disabled=false;}});
-$('#preview-notice').hidden=desktop;api.subscribe(next=>{state=next;render();});api.getState().then(next=>{state=next;render();}).catch(error=>showError(message(error)));
+$('#preview-notice').hidden=desktop;render();api.subscribe(next=>{state=next;render();});api.getState().then(next=>{state=next;actionError=null;render();}).catch(error=>{showError(message(error));render();});
 setInterval(()=>{if(state?.previewUntil){const remaining=Math.max(0,Math.ceil((state.previewUntil-Date.now())/1000));$('#preview-description').textContent=`Timed preview · ${remaining}s remaining. Returns to the previous on/off state.`;}else $('#preview-description').textContent='Optional. Returns to the previous on/off state.';},500);
 if(!desktop&&location.protocol==='http:'){const events=new EventSource('/events');events.onmessage=()=>location.reload();}

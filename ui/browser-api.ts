@@ -3,11 +3,14 @@ import { DEFAULT_VALUES,REFERENCE,validateValues } from '../lib/values.cjs';
 import filters = require('../shared/filter-presets.cjs');
 import { supportURL } from '../lib/support.cjs';
 import type { ScreenColorAPI,ScreenColorSnapshot } from '../shared/types';
-export function createBrowserAPI(): ScreenColorAPI {
-  let state: ScreenColorSnapshot={...defaultState(),version:'0.1.1',ready:true,error:null,warning:null,previewUntil:null,popupPinned:false,
+export function createInitialState(): ScreenColorSnapshot {
+  return {...defaultState(),version:'0.1.2',ready:true,error:null,warning:null,previewUntil:null,popupPinned:false,
     startupActual:false,startupWarning:null,shortcutAvailable:false,development:true,smoke:false,workspaceVisible:true,experiencePrompts:false,displays:[],
     experience:{version:1,launches:0,tourDone:false,supportDismissed:false,supportDue:false,notifiedVersion:null,dismissedVersion:null},
-    updates:{current:'0.1.1',status:'idle',available:null,error:null,checkedAt:null}};
+    updates:{current:'0.1.2',status:'idle',available:null,error:null,checkedAt:null}};
+}
+export function createBrowserAPI(): ScreenColorAPI {
+  let state=createInitialState();
   return {
     async getState(){return structuredClone(state);},
     async action(...[type,payload]){
