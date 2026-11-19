@@ -4,7 +4,9 @@ Screen Color's original code is available under the [MIT License](LICENSE). See 
 
 A Windows desktop color utility with live saturation, contrast, warmth, software brightness and tint adjustments. Save your favourite looks as profiles, explore eight starter filters, and switch settings from a compact system-tray panel.
 
-**[Download Screen Color 0.1.1 for Windows (64-bit)](https://github.com/Peter3324w/ScreenColor/releases/download/v0.1.1/Screen-Color-Setup-0.1.1-x64.exe)** · **[Screenshots and app details](https://peters-cave.vercel.app/apps/screen-color)**
+**[Screen Color 0.1.2 Windows release](https://github.com/Peter3324w/ScreenColor/releases/tag/v0.1.2)** · **[Screenshots and app details](https://peters-cave.vercel.app/apps/screen-color)**
+
+The published 0.1.2 installer contains unsupported Electron 33.4.11. The current development source upgrades to Electron 45.4.1; that upgrade has not been packaged or published. See the [security audit and follow-up](docs/security-audit-2026-11-19.md).
 
 Settings and profiles stay on your PC. Adjustments apply to all displays together, and quitting restores the original colors. Windows may show a SmartScreen warning because the installer is unsigned.
 
@@ -12,11 +14,11 @@ The interface uses [PlayTime's design system](docs/design-system.md): its five t
 
 ## Open the app
 
-Download the installer above, then run `Screen-Color-Setup-0.1.1-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
+The release page above contains `Screen-Color-Setup-0.1.2-x64.exe`. Review its security status above before installing. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
 
 The instructions below launch the development copy.
 
-The local **0.1.2** Windows x64 installer is `release/Screen-Color-Setup-0.1.2-x64.exe`. It includes the TypeScript migration and connection/error-recovery fixes, plus the notifications/tour/startup work below. It has not been published; the public download link above still points to 0.1.1. See the [0.1.2 audit and build record](docs/windows-0.1.2-audit.md).
+The published **0.1.2** Windows x64 installer is also retained locally at `release/Screen-Color-Setup-0.1.2-x64.exe`. It includes the TypeScript migration and connection/error-recovery fixes, plus the notifications/tour/startup work below. It predates the security runtime upgrade. See the [0.1.2 audit and build record](docs/windows-0.1.2-audit.md).
 
 1. Close all old `ColorTest`, `ColorTest-Live` and `ColorTest-Range` windows. Their temporary effects are separate from this app.
 2. Double-click **Start-Screen-Color.cmd** in this folder.
@@ -43,15 +45,15 @@ Changes apply to **all displays together**. Brightness is software picture gain,
 
 ## Development
 
-Requires Windows Node 22 or newer and the .NET Framework x64 compiler. Install the project's compiler workspace once:
+Requires Windows Node 22.12.0 or newer and the .NET Framework x64 compiler. Install the project's compiler workspace once:
 
 ```powershell
 npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund
 ```
 
-This installs pinned TypeScript 5.9.3, esbuild 0.25.12 and its platform binary, compatible Node 22.19.2 definitions, and Electron 33.4.11 declarations/dependencies. The compiler-only setup is roughly 12 MB compressed on Windows x64. `--ignore-scripts` prevents Electron's runtime download; the workspace excludes the packaging tools. A full root installation is separate and substantially larger. The compiler does not depend on another project's cache.
+This installs pinned TypeScript 5.9.3, esbuild 0.25.12 and its platform binary, Node 24.19.2 definitions and Electron 45.4.1 declarations/dependencies. `--ignore-scripts` prevents Electron's runtime download; the workspace excludes the packaging tools. A full root installation is separate and substantially larger. The compiler does not depend on another project's cache.
 
-The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Production builds and installer packaging remain separate, explicitly requested steps (`build:win` or `build:dir`).
+The launcher requires an existing Electron **45.4.1** runtime with an adjacent matching `version` file. It checks the local `node_modules/electron/dist` first, then neighboring projects, and rejects missing or mismatched version evidence. An explicit `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` override must also match; it never silently falls back after an invalid override. Runtime selection never downloads anything. Packaging requires this project's own **electron-builder 26.18.0** installation so its dependencies use the security overrides in this lockfile; neighboring builders are rejected. Production builds and installer packaging remain separate, explicitly requested steps (`build:win` or `build:dir`).
 
 ```powershell
 node scripts/compile.cjs
@@ -69,7 +71,7 @@ npm run compile:app
 
 Application code uses strict TypeScript with separate Node, Electron and DOM configurations. All core modules, Electron/preload and handwritten renderers are typed; shared data/action/API contracts are in `shared/types.ts`. Browser entries and the sandboxed preload are bundled with esbuild. The matrix/catalog retain their browser globals and come from the same typed source as Node. Source maps embed original source and resolve back to the project files. Compilation preserves source and removes orphaned output after deletion/renaming.
 
-Generated `ui/icons.js`, copied `ui/playtime-appearance.js`, the Electron smoke harness and bootstrap/build/check scripts intentionally remain JavaScript/CommonJS. Narrow declarations describe their application-facing interfaces. No application TypeScript uses `any`, `@ts-ignore`, `@ts-nocheck` or `skipLibCheck`. Node types are pinned because later declarations conflict with Electron 33's `process.noDeprecation` declaration; the Electron compiler configuration includes DOM types required by Electron's upstream declarations, while the core configuration forbids browser globals.
+Generated `ui/icons.js`, copied `ui/playtime-appearance.js`, the Electron smoke harness and bootstrap/build/check scripts intentionally remain JavaScript/CommonJS. Narrow declarations describe their application-facing interfaces. No application TypeScript uses `any`, `@ts-ignore`, `@ts-nocheck` or `skipLibCheck`. Node 24 types match Electron 45's declared type dependency; the Electron compiler configuration includes DOM types required by Electron's upstream declarations, while the core configuration forbids browser globals.
 
 ```powershell
 npm run dev
@@ -108,9 +110,9 @@ The active desktop effect also changes the sample images. **Compare samples** tu
 
 Fine-tune any preset in Adjustments, then use **Save as profile** or **Save current look** to keep your own version. Your profiles appear below the gallery; starter filters cannot be deleted or overwritten. Default and Custom preset one remain available. Quick controls includes all eight filters and your saved profiles, with the same selected look as the full app.
 
-## Updates, interface tour and support prompt (development)
+## Updates, interface tour and support prompt
 
-These additions are in the source version. The published **0.1.1 installer predates them**; installing that release will not add these features.
+These additions are included in **0.1.2**. The older **0.1.1 installer predates them**.
 
 - Screen Color checks its public GitHub releases on launch and every six hours. A newer stable Windows x64 release appears in the app, Quick controls and, when Windows allows it, a desktop notification. Settings and the tray menu also offer **Check for updates**. Checking reads a small release response; **Download update** opens the installer download only when you choose it. Nothing downloads or installs automatically.
 - The first time you open the full workspace, a welcome prompt offers a nine-step interface tour. It explains image comparison, adjustments, filters, profiles, original colors, tray controls and settings without changing your colors. Skip or finish it at any time, and use **Settings → Replay interface tour** to revisit it.
@@ -118,7 +120,7 @@ These additions are in the source version. The published **0.1.1 installer preda
 
 Tour completion, launch count and invitation/update dismissal preferences stay in `%APPDATA%\ScreenColor\experience.json`, with an atomic write and backup. They are separate from your saved color profiles. Prompts wait until an existing dialog or tour closes.
 
-The source version also corrects Windows startup registration detection and command quoting. It preserves startup disabling made in Windows Settings instead of turning it back on each time the app launches. The warning in 0.1.1 can appear even when its named startup entry is present; the fix ships with the next installer.
+Version 0.1.2 also corrects Windows startup registration detection and command quoting. It preserves startup disabling made in Windows Settings instead of turning it back on each time the app launches. The warning in 0.1.1 can appear even when its named startup entry is present; the fix is included in 0.1.2.
 
 Verification details and limitations: [notifications, tour and startup checks](docs/notifications-tour-verification.md).
 

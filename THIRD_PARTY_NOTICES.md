@@ -7,10 +7,10 @@ Screen Color's original code is licensed under the [MIT License](LICENSE). Third
 | Component | Use | License and notices |
 | --- | --- | --- |
 | [Iconsax React 0.0.8](https://www.npmjs.com/package/iconsax-react/v/0.0.8) | Static SVG icons generated into `ui/icons.js` | MIT; [retained license](licenses/iconsax-react-LICENSE.txt), copyright ERFAN KHADIVAR |
-| [Electron 33.4.11](https://github.com/electron/electron/tree/v33.4.11) | Bundled Windows runtime in release 0.1.2 | MIT; [retained license](licenses/electron-LICENSE.txt). The Windows distribution also includes `LICENSE.electron.txt` beside the executable. |
+| [Electron 45.4.1](https://github.com/electron/electron/tree/v45.4.1) | Current development runtime; the existing published 0.1.2 release uses Electron 33.4.11 | MIT; [retained license](licenses/electron-LICENSE.txt). The Windows distribution also includes `LICENSE.electron.txt` beside the executable. |
 | Chromium and Electron's bundled dependencies | Browser/runtime components | Multiple upstream licenses; the full runtime-specific notices are distributed as `LICENSES.chromium.html` beside the Windows executable. Preserve this file when redistributing the application. |
 
-Electron's version above describes the existing 0.1.2 release, not a recommendation to use that unsupported runtime. See the [security audit](docs/security-audit-2026-11-19.md).
+The source runtime upgrade has not been packaged or published. See the [security audit and follow-up](docs/security-audit-2026-11-19.md).
 
 ## Development tools
 
@@ -18,7 +18,7 @@ Electron's version above describes the existing 0.1.2 release, not a recommendat
 | --- | --- |
 | [TypeScript 5.9.3](https://github.com/microsoft/TypeScript/tree/v5.9.3) | Apache-2.0; [retained license](licenses/typescript-LICENSE.txt) |
 | [esbuild 0.25.12](https://github.com/evanw/esbuild/tree/v0.25.12) | MIT; [retained license](licenses/esbuild-LICENSE.txt) |
-| [electron-builder 25.1.8](https://github.com/electron-userland/electron-builder/tree/v25.1.8) | MIT; [retained license](licenses/electron-builder-LICENSE.txt) |
+| [electron-builder 26.18.0](https://github.com/electron-userland/electron-builder/tree/v26.18.0) | MIT; [retained license](licenses/electron-builder-LICENSE.txt) |
 
 These development tools and their transitive packages retain their own package notices. This table identifies direct tools; it is not a complete inventory of every transitive development dependency. Recheck notices when updating dependencies or redistributing development packages.
 

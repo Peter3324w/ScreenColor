@@ -47,3 +47,27 @@ Local ignored evidence: `.local/security-npm-audit.json`, `.local/security-defen
 1. Upgrade to a supported patched Electron runtime and compatible packaging dependencies, inspect the resulting lockfile audit, and rerun strict checks, tests and isolated Electron smoke tests.
 2. Configure and verify appropriate production fuses, then test the actual packaged application. Keep development runtime behavior separate from production fuse changes.
 3. Build and publish a replacement only when requested; preserve the release's native desktop acceptance limitation until physical color/restoration checks are performed.
+
+## Source upgrade follow-up, 19 November 2026
+
+Peter approved the runtime download and subsequently approved an additional approximately 90 MB dependency-download allowance. Licensing PR [#4](https://github.com/Peter3324w/ScreenColor/pull/4) was merged on GitHub at `762ee0f03b73d27a181e034c9f1db9ba8a02e2dc`; GitHub's license API recognizes MIT on `main`. The security upgrade described below is subsequent development work, not part of that merged PR or the published installer.
+
+Current source pins Electron **45.4.1**, electron-builder **26.18.0** and Node types **24.19.2**, with Node **22.12.0** as the minimum development runtime. Both Electron declarations and the executable use 45.4.1. The 158,296,013-byte Windows runtime archive's SHA-256 matched the upstream `SHASUMS256.txt` before extraction:
+
+`2ba6223afa9121f42831fefe92c434334907540165294fc56697449d12e7cfe9`
+
+Upgrading Electron and builder removed the original critical/high findings, but left one underlying moderate advisory propagated through six build-tool packages: [minimatch pattern amplification](https://github.com/advisories/GHSA-g3hv-75wg-m249). A targeted override replaces minimatch versions `>=7.0.0 <11.0.1` with **11.0.1**, while preserving older API families used elsewhere. Fresh `npm audit --json` after the full `npm ci --ignore-scripts --no-audit --no-fund` reports **zero known vulnerabilities**. This is the registry's result for this dependency graph at audit time, not a guarantee against unknown vulnerabilities.
+
+Runtime selection now rejects executables with a missing or mismatched adjacent version file, including explicit environment overrides. Neighboring runtime caches are usable only if their version matches the pin. Packaging accepts only this project's own matching builder installation. Review identified that accepting a matching-version neighboring builder could bypass this project's transitive dependency override; that fallback was removed, with a regression observed failing before the fix and passing afterward.
+
+Verification completed against the installed upgraded dependencies:
+
+- Strict Node, Electron and DOM TypeScript checks plus both type-fixture configurations passed without weakening compiler settings.
+- **60/60 Node tests passed**, including eight runtime/builder-selection regressions. The initial seven version-check regressions failed before implementation; the additional neighboring-builder regression failed before removal of that fallback.
+- The actual verified Electron 45.4.1 executable passed **22/22 isolated mock-native smoke checks**. Separate real Electron welcome/tour/support/update integration checks passed, including persistence, fixed external destinations and rejected real startup changes.
+- The new builder API loads, and the existing application configuration passes its schema validation. Read-only review confirmed app-builder-lib and @electron/universal resolve minimatch 11.0.1; their real matching APIs passed focused configured-file-pattern, traversal/exclusion, literal-folder, hasMagic, named-export and matchBase checks.
+- Upstream Electron and builder license texts were refreshed; notices distinguish the current source from the unchanged 0.1.2 release.
+
+No production app or installer was built, installed or published. Version remains 0.1.2 in source pending a separately requested release version bump. The existing published installer still uses Electron 33.4.11; the original artifact findings above remain applicable to it. Production fuse hardening, signing, packaged verification and physical native color/restoration acceptance remain separate work. The preview wallpaper's unrecorded licensing provenance is tracked in `THIRD_PARTY_NOTICES.md`.
+
+Additional local evidence: `.local/security-final-audit.json`, `.local/security-installed-dependencies.log`, `.local/security-final-typecheck.log`, `.local/security-final-tests.log`, `.local/security-electron45-smoke.json`, `.local/security-electron45-experience.log`, `.local/security-runtime-red.log` and `.local/security-builder-fallback-red.log`.
