@@ -14,6 +14,8 @@ Download the installer above, then run `Screen-Color-Setup-0.1.1-x64.exe`. The i
 
 The instructions below launch the development copy.
 
+The local **0.1.2** Windows x64 installer is `release/Screen-Color-Setup-0.1.2-x64.exe`. It includes the TypeScript migration and connection/error-recovery fixes, plus the notifications/tour/startup work below. It has not been published; the public download link above still points to 0.1.1. See the [0.1.2 audit and build record](docs/windows-0.1.2-audit.md).
+
 1. Close all old `ColorTest`, `ColorTest-Live` and `ColorTest-Range` windows. Their temporary effects are separate from this app.
 2. Double-click **Start-Screen-Color.cmd** in this folder.
 3. The compact quick-controls popup opens first. Choose **Custom preset one** from its Profile list for the accepted starting point: saturation 139%, contrast 115%, warmth 100. Choose **Open full app** for the larger workspace.

@@ -19,3 +19,15 @@ Strict type checking and all 52 Node tests passed. Final browser and real isolat
 The actual native helper was also contacted through the compiled bridge. It correctly reported the already-running installed app as the desktop owner; no apply command was sent and the existing app was left untouched. Normal live color-effect/restoration acceptance remains a manual installed-app check.
 
 Build uses cached Electron 33.4.11, electron-builder 25.1.8 and NSIS. No new runtime/tool download is needed. The build does not install the app or publish it to GitHub.
+
+## Built installer
+
+- File: `release/Screen-Color-Setup-0.1.2-x64.exe`
+- Source commit: `80ae9fea42e4a31fb62ed036190223b8044d0284`
+- Size: 82,599,241 bytes; Windows product version 0.1.2.
+- SHA-256: `bfbef4e6e80d8772ce00b5eccd81fbf0405f7439394830e13a25a9a7de8038d3`
+- All 66 compiled/asset files in `app.asar` byte-match the verified output; native helper byte-matches the local native build. App executable is x64; development files/dependencies are excluded.
+- The actual packaged `release/win-unpacked/Screen Color.exe --smoke` passed all 22 checks with the isolated mock engine. Strict checking, 52 unit tests and all eight browser/desktop audit suites passed before packaging.
+- The previous 0.1.1 installer checksum is unchanged. No installation, push, merge or release was performed. Actual native color-effect/upgrade acceptance remains a manual check after quitting the installed copy.
+
+Machine-readable receipt: `.local/installer-0.1.2-verification.json`. Build log: `.local/pc-build-0.1.2.log`. Windows archive inspection uses native path separators; PowerShell-redirected logs are decoded as UTF-16 when they have that BOM.
