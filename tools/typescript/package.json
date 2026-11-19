@@ -2,6 +2,7 @@
   "name": "@screen-color/typescript-tooling",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "22.19.2",
     "electron": "33.4.11",

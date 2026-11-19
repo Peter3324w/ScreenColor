@@ -1,5 +1,7 @@
 # Screen Color
 
+Screen Color's original code is available under the [MIT License](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependency licenses and asset provenance, including the unresolved origin of the bundled preview image.
+
 A Windows desktop color utility with live saturation, contrast, warmth, software brightness and tint adjustments. Save your favourite looks as profiles, explore eight starter filters, and switch settings from a compact system-tray panel.
 
 **[Download Screen Color 0.1.1 for Windows (64-bit)](https://github.com/Peter3324w/ScreenColor/releases/download/v0.1.1/Screen-Color-Setup-0.1.1-x64.exe)** · **[Screenshots and app details](https://peters-cave.vercel.app/apps/screen-color)**
