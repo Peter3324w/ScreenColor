@@ -87,6 +87,13 @@ Start with Phase 1 and the shared value/profile/action types from Phase 2. This 
 - Current baseline is 45 Node tests and 22 Electron smoke checks, reflecting the completed notifications/tour/startup work since this plan was first written.
 - Verification record: [docs/typescript-milestone-1-verification.md](docs/typescript-milestone-1-verification.md).
 
+### Phase 2 implementation
+
+- All shared/core `lib` modules migrated to strict `.cts`, preserving CommonJS output. Matrix/catalog each have one typed shared source and esbuild browser bundles retaining existing globals.
+- Unknown disk/native/release/controller inputs remain runtime validated. Controller action arguments retain payload correlations; preview generations and backup/startup rollback remain intact.
+- All 49 Node tests, strict checks, 22 isolated Electron checks, browser suites, existing-live-settings compatibility and toolchain checks passed. Read-only review clear.
+- See [docs/typescript-phase-2-verification.md](docs/typescript-phase-2-verification.md). Phases 3–5 remain.
+
 ## References
 
 - TypeScript incremental migration: https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html

@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');
-const {colorMatrix,svgMatrix,shouldSimulate}=require('../out/ui/color-matrix.js');const {DEFAULT_VALUES,REFERENCE,matrix}=require('../out/lib/model.cjs');
+const {colorMatrix,svgMatrix,shouldSimulate}=require('../out/shared/color-matrix.js');const {DEFAULT_VALUES,REFERENCE,matrix}=require('../out/lib/model.cjs');
 test('preview matrix matches the native-domain transform and transposes SVG channel order',()=>{
  assert.deepEqual(colorMatrix(REFERENCE),matrix(REFERENCE));
  const actual=svgMatrix(REFERENCE).split(' ').map(Number);assert.equal(actual.length,20);

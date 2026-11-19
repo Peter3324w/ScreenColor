@@ -12,3 +12,23 @@ test('retry after a rejected handshake does not reuse the unready child',async()
  const children=[];const bridge=new NativeBridge('host','data',{timeoutMs:5000,spawn(){const child=fakeChild();children.push(child);setImmediate(()=>child.stdout.write(children.length===1?'{"id":0,"ok":false,"error":"Temporarily unavailable"}\n':'{"id":0,"ok":true}\n'));return child;}});bridge.on('failure',()=>{});
  await assert.rejects(bridge.start(),/Temporarily/);await bridge.start();assert.equal(children.length,2);bridge.closing=true;bridge.child.kill();
 });
+
+test('native handshake rejects malformed data instead of treating truthy flags as success',async()=>{
+ for(const payload of ['{"id":0,"ok":"true"}','null','[]','{"id":"0","ok":true}','{"id":-1,"ok":true}','{"id":0,"ok":false,"error":42}']){
+  const child=fakeChild(),failures=[];
+  const bridge=new NativeBridge('host','data',{timeoutMs:100,spawn(){setImmediate(()=>child.stdout.write(payload+'\n'));return child;}});
+  bridge.on('failure',error=>failures.push(error.message));
+  await assert.rejects(bridge.start(),/Invalid color-engine response/);
+  assert.equal(bridge.ready,false);assert.equal(bridge.child,null);assert.equal(failures.length,1);
+ }
+});
+
+test('a malformed native reply rejects pending work and allows a fresh connection',async()=>{
+ const children=[];
+ const bridge=new NativeBridge('host','data',{timeoutMs:100,spawn(){const child=fakeChild();children.push(child);setImmediate(()=>child.stdout.write('{"id":0,"ok":true}\n'));return child;}});
+ bridge.on('failure',()=>{});await bridge.start();
+ const pending=bridge.request({command:'reset'});
+ children[0].stdout.write('{"id":1,"ok":"true"}\n');
+ await assert.rejects(pending,/Invalid color-engine response/);assert.equal(bridge.pending.size,0);assert.equal(bridge.ready,false);
+ await bridge.start();assert.equal(children.length,2);bridge.closing=true;bridge.child.kill();
+});

@@ -45,7 +45,7 @@ Requires Windows Node 22 or newer and the .NET Framework x64 compiler. Install t
 npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund
 ```
 
-This installs the pinned TypeScript 5.9.3 compiler, Node 22 definitions and their small type dependency (about 4.85 MB compressed). It excludes the root packaging dependencies and does not download an Electron runtime. A full root dependency installation is separate and substantially larger. The compiler does not depend on another project's TypeScript cache.
+This installs the pinned TypeScript 5.9.3 compiler, Node 22 definitions and their small type dependency, plus esbuild 0.25.12 and its platform binary (about 9.37 MB compressed on Windows x64). It excludes the root packaging dependencies and does not download an Electron runtime. A full root dependency installation is separate and substantially larger. The compiler does not depend on another project's TypeScript cache.
 
 The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Production builds and installer packaging remain separate, explicitly requested steps (`build:win` or `build:dir`).
 
@@ -63,7 +63,7 @@ npm run typecheck
 npm run compile:app
 ```
 
-Migrated TypeScript uses strict checking with separate Node/Electron and DOM configurations. The first converted module is `lib/values.cts`; shared data/action/API contracts are in `shared/types.ts`. Untouched JavaScript remains unchecked during migration. Source maps beside compiled files embed the original sources and resolve back to the project files for debugging. Compilation preserves source files and removes orphaned output after source deletion or renaming.
+Migrated TypeScript uses strict checking with separate Node/Electron and DOM configurations. All `lib/` modules and the shared matrix/catalog are now typed; shared data/action/API contracts are in `shared/types.ts`. Browser bundles retain their existing globals. Untouched JavaScript remains unchecked during migration. Source maps beside compiled files embed the original sources and resolve back to the project files for debugging. Compilation preserves source files and removes orphaned output after source deletion or renaming.
 
 ```powershell
 npm run dev
@@ -118,4 +118,4 @@ Verification details and limitations: [notifications, tour and startup checks](d
 
 ## Next session
 
-The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). The first milestone establishes tooling, compiled development paths, typed color values and shared contracts. Next: finish Phase 2 by migrating matrix/presets and state/store/controller/native bridge logic; Electron/preload and renderer conversions follow. The current installer remains unchanged.
+The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). Phases 1?2 establish tooling, compiled development paths and the typed shared/core modules. See [Phase 2 verification](docs/typescript-phase-2-verification.md). Electron/preload and renderer conversions follow. The current installer remains unchanged.

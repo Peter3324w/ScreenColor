@@ -14,6 +14,12 @@ function compileApp(){
   if(result.error||result.status!==0)throw new Error(result.error?.message||result.stdout||result.stderr||'TypeScript compilation failed.');
   for(const line of result.stdout.split(/\r?\n/))if(line.startsWith('TSFILE: '))emitted.add(path.resolve(line.slice(8)));
  }
+ const esbuild=require('esbuild');
+ for(const [entry,name,globalName] of [['shared/color-matrix.ts','color-matrix','ColorPreview'],['shared/filter-presets.cts','filter-presets','ScreenColorFilters']]){
+  const result=esbuild.buildSync({absWorkingDir:root,entryPoints:[entry],bundle:true,platform:'browser',format:'iife',globalName,
+   target:'es2022',sourcemap:'linked',sourcesContent:true,outfile:path.join(output,'ui',name+'.js'),write:false});
+  for(const file of result.outputFiles){fs.writeFileSync(file.path,file.contents);emitted.add(file.path);}
+ }
  // TypeScript emits JS/TS; copy only the remaining renderer assets. Never write into source.
  for(const file of fs.readdirSync(path.join(root,'ui'))){
   if(/\.(?:html|css|jpg|png|svg|webp|avif)$/.test(file)){

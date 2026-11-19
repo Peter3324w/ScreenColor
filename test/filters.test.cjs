@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const {EventEmitter}=require('node:events');
-const filters=require('../out/ui/filter-presets.js');
+const filters=require('../out/shared/filter-presets.cjs');
 const {Controller}=require('../out/lib/controller.cjs');const {defaultState,validateValues,validateState,REFERENCE}=require('../out/lib/model.cjs');
 function setup(){const bridge=new EventEmitter();bridge.calls=[];bridge.start=async()=>{};bridge.close=async()=>{};bridge.request=async cmd=>{if(bridge.fail)throw new Error('Display unavailable');bridge.calls.push(cmd);};const store={state:defaultState(),load(){return {state:structuredClone(this.state)};},save(state){this.state=structuredClone(state);}};return {bridge,store,c:new Controller(bridge,store)};}
 test('starter filters have unique immutable IDs and complete values within existing control limits',()=>{

@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');const path=require('node:path');const {chromium}=require('../../Playtime/node_modules/playwright');
-require('./compile-app.cjs').compileApp();const filters=require('../out/ui/filter-presets.js');
+require('./compile-app.cjs').compileApp();const filters=require('../out/shared/filter-presets.cjs');
 (async()=>{
  const browser=await chromium.launch({channel:'msedge',headless:true});
  try{
