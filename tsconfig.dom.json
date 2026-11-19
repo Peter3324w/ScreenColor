@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": []
+  },
+  "include": ["ui/**/*.js", "ui/**/*.ts", "shared/**/*.ts", "shared/**/*.cts", "types/browser.d.ts"]
+}

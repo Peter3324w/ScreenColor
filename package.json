@@ -1,12 +1,35 @@
 {
   "name": "screen-color",
   "productName": "Screen Color",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Live desktop color adjustments with saved profiles and compact tray controls",
   "author": "Peter",
-  "main": "electron/main.cjs",
-  "scripts": { "dev": "node scripts/dev.cjs", "dev:app": "node scripts/launch.cjs --full-app", "test": "node --test test/*.test.cjs", "native:compile": "node scripts/compile.cjs", "smoke": "node scripts/smoke.cjs", "build:dir": "node scripts/build.cjs --dir", "build:win": "node scripts/build.cjs" },
-  "devDependencies": { "electron": "33.4.11", "electron-builder": "25.1.8" },
-  "engines": { "node": ">=22" }
+  "main": "out/electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "dev:app": "node scripts/launch.cjs --full-app",
+    "compile:app": "node scripts/compile-app.cjs",
+    "typecheck": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.electron.json --noEmit && tsc -p tsconfig.dom.json --noEmit && tsc -p test/types/tsconfig.node.json && tsc -p test/types/tsconfig.dom.json",
+    "pretest": "npm run compile:app",
+    "test": "node --test test/*.test.cjs",
+    "native:compile": "node scripts/compile.cjs",
+    "smoke": "node scripts/smoke.cjs",
+    "build:dir": "node scripts/build.cjs --dir",
+    "build:win": "node scripts/build.cjs"
+  },
+  "workspaces": [
+    "tools/typescript"
+  ],
+  "overrides": {
+    "@types/node": "22.19.2"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "25.1.8",
+    "@types/node": "22.19.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
 }

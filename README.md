@@ -1,14 +1,20 @@
 # Screen Color
 
-A Windows desktop color utility built around Peter's successful HP ProBook 450 G4 / Intel HD 620 experiment. Working name, local development version 0.1.1.
+A Windows desktop color utility with live saturation, contrast, warmth, software brightness and tint adjustments. Save your favourite looks as profiles, explore eight starter filters, and switch settings from a compact system-tray panel.
+
+**[Download Screen Color 0.1.1 for Windows (64-bit)](https://github.com/Peter3324w/ScreenColor/releases/download/v0.1.1/Screen-Color-Setup-0.1.1-x64.exe)** · **[Screenshots and app details](https://peters-cave.vercel.app/apps/screen-color)**
+
+Settings and profiles stay on your PC. Adjustments apply to all displays together, and quitting restores the original colors. Windows may show a SmartScreen warning because the installer is unsigned.
 
 The interface uses [PlayTime's design system](docs/design-system.md): its five themes, custom accent derivation, Iconsax icons, typography, spacing, glass surfaces and component styling. Choose a palette under Settings → Appearance.
 
 ## Open the app
 
-For installation, run `release/Screen-Color-Setup-0.1.1-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
+Download the installer above, then run `Screen-Color-Setup-0.1.1-x64.exe`. The installer includes Electron and the native engine, so the source folder is not needed afterward. It registers Screen Color to start quietly at Windows sign-in by default. You can change this in Settings; upgrades preserve that choice.
 
 The instructions below launch the development copy.
+
+The local **0.1.2** Windows x64 installer is `release/Screen-Color-Setup-0.1.2-x64.exe`. It includes the TypeScript migration and connection/error-recovery fixes, plus the notifications/tour/startup work below. It has not been published; the public download link above still points to 0.1.1. See the [0.1.2 audit and build record](docs/windows-0.1.2-audit.md).
 
 1. Close all old `ColorTest`, `ColorTest-Live` and `ColorTest-Range` windows. Their temporary effects are separate from this app.
 2. Double-click **Start-Screen-Color.cmd** in this folder.
@@ -33,30 +39,50 @@ To keep a new look directly from the toolbar, adjust the sliders, click **Save a
 
 Changes apply to **all displays together**. Brightness is software picture gain, not panel backlight control. This version does not include per-monitor correction, selective vibrance, gamma, nonlinear shadow/highlight curves, DDC control or HDR processing. It changes preferred appearance; it does not provide measured calibration or OLED blacks.
 
-## Development without downloads
+## Development
 
-Requires the existing Windows Node installation and .NET Framework x64 compiler. The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Run `npm run build:win` to package using local cached build tools, or `npm run build:dir` for an unpacked build.
+Requires Windows Node 22 or newer and the .NET Framework x64 compiler. Install the project's compiler workspace once:
+
+```powershell
+npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund
+```
+
+This installs pinned TypeScript 5.9.3, esbuild 0.25.12 and its platform binary, compatible Node 22.19.2 definitions, and Electron 33.4.11 declarations/dependencies. The compiler-only setup is roughly 12 MB compressed on Windows x64. `--ignore-scripts` prevents Electron's runtime download; the workspace excludes the packaging tools. A full root installation is separate and substantially larger. The compiler does not depend on another project's cache.
+
+The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Production builds and installer packaging remain separate, explicitly requested steps (`build:win` or `build:dir`).
 
 ```powershell
 node scripts/compile.cjs
 node scripts/launch.cjs
 ```
 
-Renderer HTML/CSS/JS edits reload the Electron window automatically, preserving native processing. Main/preload edits require quitting and reopening the app. C# changes compile incrementally on launch; no native recompilation is needed for UI changes.
+The launcher and **Start-Screen-Color.cmd** compile the application into the ignored `out/` directory before opening Electron. Node/Electron files keep their CommonJS runtime; browser scripts keep their existing globals without Node access. Native helper and diagnostics paths still resolve from the project root, not `out/`.
+
+Renderer HTML/CSS/JS/TS edits compile and reload the Electron windows automatically, preserving native processing. Main/preload/core edits compile but require quitting and reopening the app to take effect in the main process. C# changes compile incrementally on launch; no native recompilation is needed for UI changes.
+
+```powershell
+npm run typecheck
+npm run compile:app
+```
+
+Application code uses strict TypeScript with separate Node, Electron and DOM configurations. All core modules, Electron/preload and handwritten renderers are typed; shared data/action/API contracts are in `shared/types.ts`. Browser entries and the sandboxed preload are bundled with esbuild. The matrix/catalog retain their browser globals and come from the same typed source as Node. Source maps embed original source and resolve back to the project files. Compilation preserves source and removes orphaned output after deletion/renaming.
+
+Generated `ui/icons.js`, copied `ui/playtime-appearance.js`, the Electron smoke harness and bootstrap/build/check scripts intentionally remain JavaScript/CommonJS. Narrow declarations describe their application-facing interfaces. No application TypeScript uses `any`, `@ts-ignore`, `@ts-nocheck` or `skipLibCheck`. Node types are pinned because later declarations conflict with Electron 33's `process.noDeprecation` declaration; the Electron compiler configuration includes DOM types required by Electron's upstream declarations, while the core configuration forbids browser globals.
 
 ```powershell
 npm run dev
 ```
 
-This starts a separate browser UI preview at **http://localhost:3000**, or the next free port up to 3010. It is clearly marked preview-only and cannot alter desktop settings. Browser UI edits reload through server-sent events. There is no HTTP API for desktop changes.
+This compiles the application and serves `out/ui/` as a separate browser UI preview at **http://localhost:3000**, or the next free port up to 3010. It is clearly marked preview-only and cannot alter desktop settings. Source edits compile before server-sent reload events. JavaScript source maps are served for debugging. There is no HTTP API for desktop changes. Restart the preview after changing compiler configuration or development scripts.
 
 ```powershell
 npm test
 node scripts/smoke.cjs
 node scripts/browser-check.cjs
+node scripts/toolchain-check.cjs
 ```
 
-The Electron smoke check uses an explicitly mocked engine and isolated data; it never changes the screen. The browser check reuses PlayTime's installed Playwright/Chromium without downloads. These automation tools may be unavailable under the Codex sandbox; consult the actual results in `docs/verification.md`.
+`npm test` compiles first and tests `out/`. Type checking verifies action/payload contracts and rejects Node globals in renderers and DOM globals in core code. Electron smoke uses an explicitly mocked engine and isolated data; it never changes the screen. Browser/toolchain checks require the preview server and reuse PlayTime's installed Playwright/Chromium. The toolchain check covers source preservation, bundled maps, typed browser compilation/reload and stale-output removal. Wait for the preview's listening message or `/health` before running browser checks. See [final migration verification](docs/typescript-migration-verification.md) for results and limits.
 
 ## Data and recovery
 
@@ -80,6 +106,20 @@ The active desktop effect also changes the sample images. **Compare samples** tu
 
 Fine-tune any preset in Adjustments, then use **Save as profile** or **Save current look** to keep your own version. Your profiles appear below the gallery; starter filters cannot be deleted or overwritten. Default and Custom preset one remain available. Quick controls includes all eight filters and your saved profiles, with the same selected look as the full app.
 
+## Updates, interface tour and support prompt (development)
+
+These additions are in the source version. The published **0.1.1 installer predates them**; installing that release will not add these features.
+
+- Screen Color checks its public GitHub releases on launch and every six hours. A newer stable Windows x64 release appears in the app, Quick controls and, when Windows allows it, a desktop notification. Settings and the tray menu also offer **Check for updates**. Checking reads a small release response; **Download update** opens the installer download only when you choose it. Nothing downloads or installs automatically.
+- The first time you open the full workspace, a welcome prompt offers a nine-step interface tour. It explains image comparison, adjustments, filters, profiles, original colors, tray controls and settings without changing your colors. Skip or finish it at any time, and use **Settings → Replay interface tour** to revisit it.
+- After the fourth deliberate app launch, a one-time invitation appears when the full workspace is visible. Windows background startup, renderer reloads and tray clicks do not count. Choose the green **Contribute to the PC fund** button, **Give feedback**, **Browse more Cave apps**, or **Not now**. The contribution button currently opens Peter's Cave's support page; it does not collect a payment inside the app.
+
+Tour completion, launch count and invitation/update dismissal preferences stay in `%APPDATA%\ScreenColor\experience.json`, with an atomic write and backup. They are separate from your saved color profiles. Prompts wait until an existing dialog or tour closes.
+
+The source version also corrects Windows startup registration detection and command quoting. It preserves startup disabling made in Windows Settings instead of turning it back on each time the app launches. The warning in 0.1.1 can appear even when its named startup entry is present; the fix ships with the next installer.
+
+Verification details and limitations: [notifications, tour and startup checks](docs/notifications-tour-verification.md).
+
 ## Next session
 
-The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). Planning is complete; TypeScript implementation has not started.
+The [migration plan](typescript%20migration%20plan.md) has been implemented through renderer conversion and cleanup. Final isolated verification is recorded [here](docs/typescript-migration-verification.md). Native desktop acceptance with the migrated source requires quitting the currently running installed Screen Color first; the migration checks leave that app and its color effect untouched. The current installer remains unchanged. Production packaging is a separate requested step.

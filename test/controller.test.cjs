@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const {EventEmitter}=require('node:events');
-const {Controller}=require('../lib/controller.cjs');const {defaultState,REFERENCE}=require('../lib/model.cjs');
+const {Controller}=require('../out/lib/controller.cjs');const {defaultState,REFERENCE}=require('../out/lib/model.cjs');
 function setup(){const bridge=new EventEmitter();bridge.calls=[];bridge.request=async cmd=>{bridge.calls.push(cmd);if(bridge.fail)throw new Error('Native unavailable');return {ok:true};};bridge.start=async()=>{};bridge.close=async()=>{};const store={state:defaultState(),load(){return {state:this.state};},save(s){this.state=structuredClone(s);}};return {bridge,store,c:new Controller(bridge,store)};}
 test('settings apply only after acknowledgment and failures disable the reported effect',async()=>{
  const {c,bridge}=setup();await c.init();await c.dispatch('values',REFERENCE);assert.equal(c.snapshot().enabled,true);assert.deepEqual(c.snapshot().values,REFERENCE);

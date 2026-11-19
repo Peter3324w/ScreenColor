@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const os=require('node:os');const path=require('node:path');
-const {Store}=require('../lib/store.cjs');const {defaultState}=require('../lib/model.cjs');
+const {Store}=require('../out/lib/store.cjs');const {defaultState}=require('../out/lib/model.cjs');
 test('store writes atomic roundtrips and malformed files load safely disabled',t=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'screen-color-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
  const file=path.join(dir,'settings.json'),store=new Store(file);assert.equal(store.load().state.enabled,false);

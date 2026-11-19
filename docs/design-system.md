@@ -4,7 +4,7 @@ Peter requested the complete PlayTime visual language on 16 November 2026: color
 
 ## Source
 
-Read-only source: `C:\Users\peter\Projects\Playtime`, `dev` at `a85c4b52b9fee1c759c8688910abf1c1c5a0ab20`. PlayTime has unrelated in-progress work; none of its files were edited. Imported style/util files were unchanged in its working tree.
+Read-only source: neighboring `../Playtime` checkout, `dev` at `a85c4b52b9fee1c759c8688910abf1c1c5a0ab20`. PlayTime has unrelated in-progress work; none of its files were edited. Imported style/util files were unchanged in its working tree.
 
 - `src/renderer/src/styles/00-base.css`: exact token/theme prefix copied to `ui/playtime-tokens.css`, including the original source comments. Midnight, Graphite, Deep, Moss and Rose retain their complete neutral ramps, accent/on-accent pairs, wash/stroke/glass tokens, chart colors and semantic greens/reds.
 - `src/renderer/src/lib/util.js`: theme/accent helper section copied to `ui/playtime-appearance.js`, including lightness floors, contrast-aware text, green/danger hue separation, and Auto accent behavior. Only module exports were adapted for the existing browser/CommonJS setup.

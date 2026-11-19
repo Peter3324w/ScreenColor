@@ -1,0 +1,11 @@
+{
+  "name": "@screen-color/typescript-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "22.19.2",
+    "electron": "33.4.11",
+    "esbuild": "0.25.12",
+    "typescript": "5.9.3"
+  }
+}
