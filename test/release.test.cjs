@@ -1,4 +1,4 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const {startupOptions,runtimePaths}=require('../lib/platform.cjs');
+const {test}=require('node:test');const assert=require('node:assert/strict');const {startupOptions,runtimePaths}=require('../out/lib/platform.cjs');
 test('installed startup launches the installed executable without a source-folder argument',()=>{
  assert.deepEqual(startupOptions({packaged:true,executable:'C:\\Apps\\Screen Color.exe',root:'C:\\Apps\\resources\\app.asar'}),{path:'"C:\\Apps\\Screen Color.exe"',args:['--background'],name:'Screen Color'});
  assert.deepEqual(startupOptions({packaged:false,executable:'electron.exe',root:'source'}).args,['"source"','--background']);

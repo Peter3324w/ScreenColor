@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.dom.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["./browser.ts", "../../types/browser.d.ts"]
+}

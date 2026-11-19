@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {StartupRegistration,WindowsRegistry}=require('../lib/startup.cjs');
+const {StartupRegistration,WindowsRegistry}=require('../out/lib/startup.cjs');
 const options={name:'Screen Color',path:'"C:\\Apps\\Screen Color.exe"',args:['--background']};
 function fixture(initial){let value=structuredClone(initial);return {registry:{read:()=>structuredClone(value),write:next=>{value=structuredClone(next);}},read:()=>value};}
 test('legacy unquoted command is repaired without changing Windows-disabled approval',()=>{

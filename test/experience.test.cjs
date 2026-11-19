@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
-const {ExperienceStore}=require('../lib/experience.cjs');
+const {ExperienceStore}=require('../out/lib/experience.cjs');
 function fixture(t){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'screen-color-experience-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));return path.join(dir,'experience.json');}
 test('four deliberate launches trigger support once, excluding background launches and reads',t=>{
  const file=fixture(t);let store=new ExperienceStore(file);

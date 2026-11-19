@@ -8,7 +8,7 @@ const {ExperienceStore}=require('../lib/experience.cjs');
 const {UpdateChecker}=require('../lib/updates.cjs');
 const {StartupRegistration}=require('../lib/startup.cjs');
 const {startupOptions:makeStartupOptions,runtimePaths}=require('../lib/platform.cjs');
-const root=path.resolve(__dirname,'..');const smoke=process.argv.includes('--smoke');
+const runtimeRoot=path.resolve(__dirname,'..'),root=app.getAppPath();const smoke=process.argv.includes('--smoke');
 if(smoke)app.disableHardwareAcceleration();
 app.setPath('userData',smoke?(app.isPackaged?path.join(app.getPath('appData'),'ScreenColor','smoke-user'):path.join(root,'.local','smoke-user')):path.join(app.getPath('appData'),'ScreenColor'));
 const paths=runtimePaths({packaged:app.isPackaged,root,resources:process.resourcesPath,userData:app.getPath('userData')});const diagnosticsDir=paths.diagnostics;
@@ -20,7 +20,7 @@ app.setName('Screen Color');app.setAppUserModelId('Peter.ScreenColor');
 // Packaged and source apps deliberately share ScreenColor userData; smoke stays isolated.
 let window,popup,tray,controller,experience,updater,startupRegistration,quitting=false,shortcut=false,reapplyTimer,watcher,updateTimer,initialized=false;
 let startupInfo={registered:false,enabled:false},startupWarning=null,preferencesQueue=Promise.resolve();const pendingLaunches=[],notifiedThisProcess=new Set();
-const uiFile=path.join(root,'ui','index.html'),uiURL=pathToFileURL(uiFile).href;
+const uiFile=path.join(runtimeRoot,'ui','index.html'),uiURL=pathToFileURL(uiFile).href;
 log('Acquiring instance lock');if(!app.requestSingleInstanceLock()){log('Another instance owns the app lock.');app.quit();}else{
  log('Instance lock acquired');
  app.on('second-instance',(_event,argv)=>{if(argv.includes('--background'))return;if(!initialized)pendingLaunches.push(argv);else handleLaunch(argv);});
@@ -76,7 +76,7 @@ async function start(){
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.webContents.on('will-navigate',(event,url)=>{if(url!==uiURL)event.preventDefault();});
  window.on('close',event=>{if(quitting)return;event.preventDefault();if(controller.state.preferences.minimizeToTray&&tray)window.hide();else app.quit();});
  window.on('focus',()=>{if(initialized){refreshStartup();publish();}});window.on('hide',()=>{if(initialized)publish();});
- popup=new Popup(root,publish);log('Popup window created');
+ popup=new Popup(runtimeRoot,publish);log('Popup window created');
  ipcMain.handle('screen-color:state',event=>{validateSender(event);return snapshot();});
  ipcMain.handle('screen-color:action',async(event,type,payload)=>{
   validateSender(event);try{
@@ -102,7 +102,7 @@ async function start(){
  shortcut=globalShortcut.register('Control+Alt+F12',()=>controller.dispatch('toggle',false).catch(()=>{}));
  const reapply=()=>{clearTimeout(reapplyTimer);reapplyTimer=setTimeout(()=>controller.dispatch('reapply').catch(()=>{}),800);};
  powerMonitor.on('resume',reapply);screen.on('display-added',reapply);screen.on('display-removed',reapply);screen.on('display-metrics-changed',reapply);
- if(!app.isPackaged&&!smoke)watcher=fs.watch(path.join(root,'ui'),(_event,file)=>{if(file&&/\.(html|css|js)$/.test(file)){clearTimeout(start.reloadTimer);start.reloadTimer=setTimeout(()=>{for(const target of [window,popup.window])if(!target.isDestroyed())target.webContents.reloadIgnoringCache();},160);}});
+ if(!app.isPackaged&&!smoke)watcher=require(path.join(root,'scripts','compile-app.cjs')).watchApp(()=>{for(const target of [window,popup.window])if(!target.isDestroyed())target.webContents.reloadIgnoringCache();});
  log('Loading '+uiURL);await Promise.all([window.loadURL(uiURL),popup.ready]);await configureInstalledStartup();await controller.init();publish();
  log('App ready; color engine ready='+controller.ready+(controller.error?'; error='+controller.error:''));
  if(!smoke&&!app.isPackaged)setTimeout(()=>{if(!window.isDestroyed())window.webContents.capturePage().then(image=>fs.writeFileSync(path.join(diagnosticsDir,'app-window.png'),image.toPNG())).catch(error=>log('Capture unavailable: '+error.message));},500);

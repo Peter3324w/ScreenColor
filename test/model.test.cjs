@@ -1,6 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {DEFAULT_VALUES,REFERENCE,LIMITS,validateValues,matrix,defaultState,validateState}=require('../lib/model.cjs');
+const {DEFAULT_VALUES,REFERENCE,LIMITS,validateValues,matrix,defaultState,validateState}=require('../out/lib/model.cjs');
 test('neutral matrix is identity and reference retains the approved strengths',()=>{
  const m=matrix(DEFAULT_VALUES); assert.equal(m.length,25);
  for(let i=0;i<25;i++) assert.ok(Math.abs(m[i]-(i%6===0?1:0))<1e-8);

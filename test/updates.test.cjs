@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {compareVersions,releaseUpdate,UpdateChecker}=require('../lib/updates.cjs');
+const {compareVersions,releaseUpdate,UpdateChecker}=require('../out/lib/updates.cjs');
 const fixture=(version='0.2.0')=>({tag_name:'v'+version,name:'Screen Color '+version,draft:false,prerelease:false,html_url:'https://github.com/Peter3324w/ScreenColor/releases/tag/v'+version,assets:[{name:`Screen-Color-Setup-${version}-x64.exe`,size:123456,browser_download_url:`https://github.com/Peter3324w/ScreenColor/releases/download/v${version}/Screen-Color-Setup-${version}-x64.exe`}]});
 test('stable versions compare numerically and update metadata has an exact trusted asset',()=>{
  assert.ok(compareVersions('0.10.0','0.9.9')>0);assert.equal(compareVersions('v0.1.1','0.1.1'),0);

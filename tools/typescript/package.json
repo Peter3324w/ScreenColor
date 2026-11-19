@@ -1,0 +1,9 @@
+{
+  "name": "@screen-color/typescript-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "22.20.5"
+  }
+}

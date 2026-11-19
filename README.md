@@ -37,30 +37,48 @@ To keep a new look directly from the toolbar, adjust the sliders, click **Save a
 
 Changes apply to **all displays together**. Brightness is software picture gain, not panel backlight control. This version does not include per-monitor correction, selective vibrance, gamma, nonlinear shadow/highlight curves, DDC control or HDR processing. It changes preferred appearance; it does not provide measured calibration or OLED blacks.
 
-## Development without downloads
+## Development
 
-Requires the existing Windows Node installation and .NET Framework x64 compiler. The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Run `npm run build:win` to package using local cached build tools, or `npm run build:dir` for an unpacked build.
+Requires Windows Node 22 or newer and the .NET Framework x64 compiler. Install the project's compiler workspace once:
+
+```powershell
+npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund
+```
+
+This installs the pinned TypeScript 5.9.3 compiler, Node 22 definitions and their small type dependency (about 4.85 MB compressed). It excludes the root packaging dependencies and does not download an Electron runtime. A full root dependency installation is separate and substantially larger. The compiler does not depend on another project's TypeScript cache.
+
+The launcher finds an already installed Electron runtime in a neighboring project; it never downloads one. Override with `SCREEN_COLOR_ELECTRON=C:\path\to\electron.exe` if needed. The installer bundles its own pinned Electron runtime. Production builds and installer packaging remain separate, explicitly requested steps (`build:win` or `build:dir`).
 
 ```powershell
 node scripts/compile.cjs
 node scripts/launch.cjs
 ```
 
-Renderer HTML/CSS/JS edits reload the Electron window automatically, preserving native processing. Main/preload edits require quitting and reopening the app. C# changes compile incrementally on launch; no native recompilation is needed for UI changes.
+The launcher and **Start-Screen-Color.cmd** compile the application into the ignored `out/` directory before opening Electron. Node/Electron files keep their CommonJS runtime; browser scripts keep their existing globals without Node access. Native helper and diagnostics paths still resolve from the project root, not `out/`.
+
+Renderer HTML/CSS/JS/TS edits compile and reload the Electron windows automatically, preserving native processing. Main/preload/core edits compile but require quitting and reopening the app to take effect in the main process. C# changes compile incrementally on launch; no native recompilation is needed for UI changes.
+
+```powershell
+npm run typecheck
+npm run compile:app
+```
+
+Migrated TypeScript uses strict checking with separate Node/Electron and DOM configurations. The first converted module is `lib/values.cts`; shared data/action/API contracts are in `shared/types.ts`. Untouched JavaScript remains unchecked during migration. Source maps beside compiled files embed the original sources and resolve back to the project files for debugging. Compilation preserves source files and removes orphaned output after source deletion or renaming.
 
 ```powershell
 npm run dev
 ```
 
-This starts a separate browser UI preview at **http://localhost:3000**, or the next free port up to 3010. It is clearly marked preview-only and cannot alter desktop settings. Browser UI edits reload through server-sent events. There is no HTTP API for desktop changes.
+This compiles the application and serves `out/ui/` as a separate browser UI preview at **http://localhost:3000**, or the next free port up to 3010. It is clearly marked preview-only and cannot alter desktop settings. Source edits compile before server-sent reload events. JavaScript source maps are served for debugging. There is no HTTP API for desktop changes. Restart the preview after changing compiler configuration or development scripts.
 
 ```powershell
 npm test
 node scripts/smoke.cjs
 node scripts/browser-check.cjs
+node scripts/toolchain-check.cjs
 ```
 
-The Electron smoke check uses an explicitly mocked engine and isolated data; it never changes the screen. The browser check reuses PlayTime's installed Playwright/Chromium without downloads. These automation tools may be unavailable under the Codex sandbox; consult the actual results in `docs/verification.md`.
+`npm test` compiles first and runs the existing Node tests against `out/`. Type checking also verifies action/payload contracts and rejects Node globals in renderer code and DOM globals in core code. The Electron smoke check uses an explicitly mocked engine and isolated data; it never changes the screen. Browser/toolchain checks require the preview server; the toolchain check verifies source preservation, maps and compilation/reload of a temporary typed browser script. Browser automation reuses PlayTime's installed Playwright/Chromium without downloads. See [migration verification](docs/typescript-milestone-1-verification.md) for the current results and limits.
 
 ## Data and recovery
 
@@ -100,4 +118,4 @@ Verification details and limitations: [notifications, tour and startup checks](d
 
 ## Next session
 
-The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). Planning is complete; TypeScript implementation has not started.
+The phased migration is saved in [typescript migration plan.md](typescript%20migration%20plan.md). The first milestone establishes tooling, compiled development paths, typed color values and shared contracts. Next: finish Phase 2 by migrating matrix/presets and state/store/controller/native bridge logic; Electron/preload and renderer conversions follow. The current installer remains unchanged.

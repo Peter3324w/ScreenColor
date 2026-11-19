@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {supportURL}=require('../lib/support.cjs');
+const {supportURL}=require('../out/lib/support.cjs');
 test('support destinations resolve to fixed app-specific HTTPS pages',()=>{
  assert.equal(supportURL('help'),'https://peters-cave.vercel.app/help-me');
  assert.equal(supportURL('apps'),'https://peters-cave.vercel.app/');

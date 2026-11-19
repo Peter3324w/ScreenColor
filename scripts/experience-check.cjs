@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('../../Playtime/node_modules/playwright');
 const root=path.resolve(__dirname,'..'),output=path.join(root,'.local','experience');
+require('./compile-app.cjs').compileApp();
 (async()=>{fs.mkdirSync(output,{recursive:true});const browser=await chromium.launch({channel:'msedge',headless:true});try{
  const page=await browser.newPage({viewport:{width:1280,height:900},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{
@@ -11,7 +12,7 @@ const root=path.resolve(__dirname,'..'),output=path.join(root,'.local','experien
   window.testSetExperience=patch=>{Object.assign(experience,patch);emit();};window.testSetUpdate=patch=>{Object.assign(updates,patch);emit();};window.testSetWorkspace=visible=>{state.workspaceVisible=visible;emit();};
   window.screenColor={getState:async()=>snapshot(),subscribe:fn=>{listeners.push(fn);return()=>{};},action:async(type,payload)=>{window.testActions.push({type,payload});if(window.testFailAction===type)return{ok:false,error:'Could not complete this action. Please try again.',state:snapshot()};if(type==='finishTour')experience.tourDone=true;if(type==='dismissSupport')experience.supportDismissed=true,experience.supportDue=false;if(type==='dismissUpdate')experience.dismissedVersion=updates.available.version;if(type==='checkUpdates')updates.status='error',updates.error='Could not check for updates. Check your connection and try again.';localStorage.setItem('experience-test',JSON.stringify(experience));emit();return{ok:true,state:snapshot()};}};
  });
- await page.goto('file:///'+path.join(root,'ui/index.html').replaceAll('\\','/'));await page.getByRole('dialog',{name:'Welcome to Screen Color'}).waitFor();
+ await page.goto(require('node:url').pathToFileURL(path.join(root,'out/ui/index.html')).href);await page.getByRole('dialog',{name:'Welcome to Screen Color'}).waitFor();
  await page.getByRole('button',{name:'Take the tour',exact:true}).click();
  const tour=page.getByRole('dialog',{name:'Interface tour'});await tour.waitFor();
  for(let i=0;i<9;i++){

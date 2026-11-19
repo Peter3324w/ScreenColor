@@ -1,5 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');const {chromium}=require('../../Playtime/node_modules/playwright');
+const path=require('node:path'),{pathToFileURL}=require('node:url');
+require('./compile-app.cjs').compileApp();
 (async()=>{
  const browser=await chromium.launch({channel:'msedge',headless:true});
  try{
@@ -8,7 +10,7 @@ const assert=require('node:assert/strict');const {chromium}=require('../../Playt
    const state={enabled:false,ready:true,values:{saturation:100,contrast:100,warmth:0,brightness:100,tint:0},profileId:'neutral',profiles:[],preferences:{startup:false,minimizeToTray:true}};
    window.saveCalls=0;window.screenColor={getState:async()=>structuredClone(state),subscribe(){},async action(type,name){if(type==='saveProfile'){window.saveCalls++;await new Promise(resolve=>setTimeout(resolve,150));if(window.rejectNextSave){window.rejectNextSave=false;return {ok:false,error:'Disk full',state:structuredClone(state)};}const profile={id:String(window.saveCalls),name,values:{...state.values}};state.profiles.push(profile);state.profileId=profile.id;}return {ok:true,state:structuredClone(state)};}};
   });
-  await page.goto('file:///C:/Users/peter/Projects/ScreenColor/ui/index.html');await page.waitForSelector('#saturation');
+  await page.goto(pathToFileURL(path.resolve(__dirname,'../out/ui/index.html')).href);await page.waitForSelector('#saturation');
   await page.locator('#save-profile').evaluate(button=>button.click());await page.fill('#profile-name','Rapid save');
   await page.locator('#profile-form').evaluate(form=>{for(let i=0;i<2;i++)form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));});
   await page.waitForFunction(()=>!document.querySelector('#profile-dialog').open);

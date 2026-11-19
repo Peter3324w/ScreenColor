@@ -1,8 +1,8 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {EventEmitter}=require('node:events');
-const {Controller}=require('../lib/controller.cjs');
-const {defaultState}=require('../lib/model.cjs');
+const {Controller}=require('../out/lib/controller.cjs');
+const {defaultState}=require('../out/lib/model.cjs');
 
 function setup(t){
  const bridge=new EventEmitter();

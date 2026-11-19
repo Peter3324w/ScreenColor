@@ -1,4 +1,5 @@
 node_modules/
+out/
 native/bin/
 .local/
 release/

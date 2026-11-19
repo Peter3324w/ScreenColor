@@ -8,7 +8,7 @@ Keep `native/ColorHost.cs`, HTML, CSS, image assets, native recovery behavior, s
 
 Current verification baseline: 30 Node tests, 22 isolated mock-engine Electron checks, browser feature/design/filter checks, and a renderer repeated-save/failure-retry check. Existing JavaScript and TypeScript may coexist while modules move. Enable strict checking for migrated modules, without demanding that every untouched JavaScript asset be rewritten first.
 
-Planning only: no application migration or dependency installation has started.
+Implementation started on 19 November 2026. The first milestone covers Phase 1, the typed color-value validator and shared data/action/API contracts from Phase 2. The remaining core, Electron and renderer conversions are later milestones.
 
 ## Global constraints
 
@@ -77,6 +77,15 @@ Exit gate: a clean checkout has documented, repeatable commands; VS Code can nav
 ## Suggested first milestone
 
 Start with Phase 1 and the shared value/profile/action types from Phase 2. This delivers useful editor checks early, while the app remains usable. Commit each verified milestone separately. Avoid combining the migration with new features or UI changes.
+
+### Milestone 1 implementation
+
+- Pinned compiler workspace: install with `npm ci --workspace @screen-color/typescript-tooling --ignore-scripts --no-audit --no-fund` (about 4.85 MB compressed; excludes packaging dependencies/runtime downloads).
+- Separate strict Node/Electron and DOM configs; legacy JavaScript accepted without requiring its conversion yet. Type fixtures cover action/payload mapping and environment isolation.
+- Ignored `out/` layout, source maps, asset copies and orphan-output pruning; launch, preview, tests and smoke consume compiled code. Builder source configuration points at compiled paths; no production packaging performed.
+- `lib/values.cts` owns typed limits/defaults/reference/unknown-input validation; `shared/types.ts` and `types/browser.d.ts` establish shared contracts. The remaining model/state logic, catalog, matrix, store/controller/bridge, Electron/preload and UI source remain JavaScript.
+- Current baseline is 45 Node tests and 22 Electron smoke checks, reflecting the completed notifications/tour/startup work since this plan was first written.
+- Verification record: [docs/typescript-milestone-1-verification.md](docs/typescript-milestone-1-verification.md).
 
 ## References
 

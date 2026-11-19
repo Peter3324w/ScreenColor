@@ -4,13 +4,14 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const {_electron}=require('../../Playtime/node_modules/playwright');
 const {findRuntime}=require('./runtime.cjs');
 const root=path.resolve(__dirname,'..'),captureRoot=path.join(root,'.local','experience-app');
+require('./compile-app.cjs').compileApp();
 (async()=>{
- fs.mkdirSync(path.join(captureRoot,'electron'),{recursive:true});
- for(const folder of ['ui','lib'])if(!fs.existsSync(path.join(captureRoot,folder)))fs.symlinkSync(path.join(root,folder),path.join(captureRoot,folder),'junction');
- for(const file of ['preload.cjs','popup.cjs'])fs.copyFileSync(path.join(root,'electron',file),path.join(captureRoot,'electron',file));
+ fs.mkdirSync(path.join(captureRoot,'out','electron'),{recursive:true});
+ for(const folder of ['ui','lib'])if(!fs.existsSync(path.join(captureRoot,'out',folder)))fs.symlinkSync(path.join(root,'out',folder),path.join(captureRoot,'out',folder),'junction');
+ for(const file of ['preload.cjs','popup.cjs'])fs.copyFileSync(path.join(root,'out','electron',file),path.join(captureRoot,'out','electron',file));
  fs.copyFileSync(path.join(root,'package.json'),path.join(captureRoot,'package.json'));
- const main=fs.readFileSync(path.join(root,'electron/main.cjs'),'utf8');if(!main.includes('if(smoke)await runSmoke();'))throw new Error('Smoke hook changed');
- fs.writeFileSync(path.join(captureRoot,'electron/main.cjs'),main.replace('if(smoke)await runSmoke();','if(smoke)log("Experience integration harness ready");').replace('if(!app.isPackaged)watcher=','if(!app.isPackaged&&!smoke)watcher='));
+ const main=fs.readFileSync(path.join(root,'out/electron/main.cjs'),'utf8');if(!/if\s*\(smoke\)\s*await runSmoke\(\);/.test(main))throw new Error('Smoke hook changed');
+ fs.writeFileSync(path.join(captureRoot,'out/electron/main.cjs'),main.replace(/if\s*\(smoke\)\s*await runSmoke\(\);/,'if(smoke)log("Experience integration harness ready");'));
  const experienceFile=path.join(captureRoot,'.local','smoke-user','experience.json');fs.mkdirSync(path.dirname(experienceFile),{recursive:true});
  fs.writeFileSync(experienceFile,JSON.stringify({version:1,launches:3,tourDone:false,supportDismissed:false,notifiedVersion:null,dismissedVersion:null}));
  const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
