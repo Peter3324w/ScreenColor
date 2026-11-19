@@ -3,6 +3,7 @@
   "productName": "Screen Color",
   "version": "0.1.2",
   "private": true,
+  "license": "MIT",
   "description": "Live desktop color adjustments with saved profiles and compact tray controls",
   "author": "Peter",
   "main": "out/electron/main.cjs",
