@@ -17,7 +17,7 @@
 .mascot-cta .experience-dialog-actions{justify-content:center}
 .mascot-panel{position:relative;display:grid;place-items:end center;padding:70px 14px 18px;border-right:1px solid var(--stroke-soft);background:radial-gradient(60% 50% at 50% 64%,rgb(var(--wash-rgb)/.06),transparent 70%)}
 .mascot-panel .pm-svg{width:180px;height:auto;overflow:visible}
-.pm-bubble{position:absolute;top:22px;left:50%;translate:-50% 0;max-width:calc(100% - 20px);padding:8px 14px;border-radius:14px;background:var(--text);color:var(--bg);font-size:13px;font-weight:600;line-height:1.35;text-align:center;animation:pm-pop .32s cubic-bezier(.3,1.6,.5,1) .15s both}
+.pm-bubble{position:absolute;top:22px;left:50%;translate:-50% 0;width:max-content;max-width:calc(100% - 20px);padding:8px 14px;border-radius:14px;background:var(--text);color:var(--bg);font-size:13px;font-weight:600;line-height:1.35;text-align:center;animation:pm-pop .32s cubic-bezier(.3,1.6,.5,1) .15s both}
 .pm-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;translate:-50% 0;border:7px solid transparent;border-top-color:var(--text);border-bottom:0}
 @keyframes pm-pop{from{scale:.6;opacity:0}to{scale:1;opacity:1}}
 .wm-shadow{fill:rgb(0 0 0/.5)}
