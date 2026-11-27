@@ -7,23 +7,34 @@
 @media(max-width:850px){.experience-setting{align-items:flex-start;flex-direction:column;gap:14px}.experience-setting-actions{flex-direction:row;flex-wrap:wrap}.update-banner{flex-wrap:wrap}.update-banner>div{flex-basis:calc(100% - 46px)}.update-banner>.experience-close{position:absolute;right:34px}.experience-dialog-body{padding:26px}.tour-panel{padding:20px}}
 @media(prefers-reduced-motion:no-preference){.experience-dialog[open]>.experience-dialog-body{animation:experience-enter .16s ease-out}@keyframes experience-enter{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}}
 
-/* Welcome mascot: PlayTime's Pro-page character, waving, with a speech bubble. */
-.welcome-dialog{width:min(680px,calc(100vw - 40px));text-align:left}
-.welcome-layout{display:grid;grid-template-columns:230px minmax(0,1fr)}
-.welcome-dialog .experience-dialog-body{display:flex;flex-direction:column;justify-content:center;padding:34px 30px 26px 26px}
-.welcome-dialog .experience-dialog-actions{justify-content:flex-start}
-.welcome-dialog .experience-skip{margin-left:0;padding-left:0}
-.welcome-mascot{position:relative;display:grid;place-items:end center;padding:70px 14px 18px;border-right:1px solid var(--stroke-soft);background:radial-gradient(60% 50% at 50% 64%,rgb(var(--wash-rgb)/.06),transparent 70%)}
-.welcome-mascot .pm-svg{width:180px;height:auto;overflow:visible}
-.pm-bubble{position:absolute;top:22px;left:50%;translate:-50% 0;padding:8px 14px;border-radius:14px;background:var(--text);color:var(--bg);font-size:13px;font-weight:600;white-space:nowrap;animation:pm-pop .32s cubic-bezier(.3,1.6,.5,1) .15s both}
+/* Mascot dialogs: PlayTime's Pro-page character on the left of the welcome and
+   support prompts, with a speech bubble. Poses: wave (one arm) and cheer (both). */
+.mascot-dialog{width:min(680px,calc(100vw - 40px));text-align:left}
+.mascot-layout{display:grid;grid-template-columns:230px minmax(0,1fr)}
+.mascot-dialog .experience-dialog-body{display:flex;flex-direction:column;justify-content:center;padding:34px 30px 26px 26px}
+.mascot-dialog .experience-dialog-body>.experience-close{top:12px;right:12px}
+.mascot-cta{display:flex;flex-direction:column;align-items:center;align-self:flex-start}
+.mascot-cta .experience-dialog-actions{justify-content:center}
+.mascot-panel{position:relative;display:grid;place-items:end center;padding:70px 14px 18px;border-right:1px solid var(--stroke-soft);background:radial-gradient(60% 50% at 50% 64%,rgb(var(--wash-rgb)/.06),transparent 70%)}
+.mascot-panel .pm-svg{width:180px;height:auto;overflow:visible}
+.pm-bubble{position:absolute;top:22px;left:50%;translate:-50% 0;max-width:calc(100% - 20px);padding:8px 14px;border-radius:14px;background:var(--text);color:var(--bg);font-size:13px;font-weight:600;line-height:1.35;text-align:center;animation:pm-pop .32s cubic-bezier(.3,1.6,.5,1) .15s both}
 .pm-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;translate:-50% 0;border:7px solid transparent;border-top-color:var(--text);border-bottom:0}
 @keyframes pm-pop{from{scale:.6;opacity:0}to{scale:1;opacity:1}}
 .wm-shadow{fill:rgb(0 0 0/.5)}
 :root[data-theme='light'] .wm-shadow{fill:rgb(24 24 20/.14)}
 .wm-char{animation:wm-breathe 3s ease-in-out infinite}
 @keyframes wm-breathe{50%{transform:translateY(-3px)}}
-.wm-wave{transform-box:fill-box;transform-origin:50% 0;transform:rotate(-150deg);animation:wm-wave 1.6s ease-in-out infinite}
+.wm-arm{transform-box:fill-box;transform-origin:50% 0}
+.wm-arm-l{transform:rotate(15deg)}
+.wm-arm-r{transform:rotate(-15deg)}
+[data-mascot-panel=wave] .wm-arm-r{animation:wm-wave 1.6s ease-in-out infinite}
 @keyframes wm-wave{0%,100%{transform:rotate(-150deg)}25%{transform:rotate(-168deg)}50%{transform:rotate(-142deg)}75%{transform:rotate(-166deg)}}
+[data-mascot-panel=cheer] .wm-arm-l{animation:wm-cheer-l 1.2s ease-in-out infinite}
+[data-mascot-panel=cheer] .wm-arm-r{animation:wm-cheer-r 1.2s ease-in-out infinite}
+@keyframes wm-cheer-l{0%,100%{transform:rotate(128deg)}50%{transform:rotate(146deg)}}
+@keyframes wm-cheer-r{0%,100%{transform:rotate(-128deg)}50%{transform:rotate(-146deg)}}
+[data-mascot-panel=cheer] .wm-char{animation:wm-hop 1.2s ease-in-out infinite}
+@keyframes wm-hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .wm-eye-open{transform-box:fill-box;transform-origin:center;animation:wm-blink 4.2s infinite}
 @keyframes wm-blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
-@media(max-width:620px){.welcome-layout{grid-template-columns:minmax(0,1fr)}.welcome-mascot{border-right:0;border-bottom:1px solid var(--stroke-soft);padding:62px 14px 12px}.welcome-mascot .pm-svg{width:120px}.welcome-dialog .experience-dialog-body{padding:24px 26px 22px}}
+@media(max-width:620px){.mascot-layout{grid-template-columns:minmax(0,1fr)}.mascot-panel{border-right:0;border-bottom:1px solid var(--stroke-soft);padding:62px 14px 12px}.mascot-panel .pm-svg{width:120px}.mascot-dialog .experience-dialog-body{padding:24px 26px 22px}}
