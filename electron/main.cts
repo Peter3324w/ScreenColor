@@ -28,7 +28,7 @@ process.on('uncaughtException',error=>{log(details(error));console.error(error);
 app.setName('Screen Color');app.setAppUserModelId('Peter.ScreenColor');
 // Packaged and source apps deliberately share ScreenColor userData; smoke stays isolated.
 let window: BrowserWindow,popup: Popup,tray: Tray,controller: Controller,experience: ExperienceStore,updater: UpdateChecker,startupRegistration: StartupRegistration;
-let quitting=false,shortcut=false,initialized=false,reapplyTimer: ReturnType<typeof setTimeout>|undefined,updateTimer: ReturnType<typeof setInterval>|undefined,watcher: {close(): void}|undefined;
+let quitting=false,shortcut=false,initialized=false,activeTimer: ReturnType<typeof setInterval>|undefined,reapplyTimer: ReturnType<typeof setTimeout>|undefined,updateTimer: ReturnType<typeof setInterval>|undefined,watcher: {close(): void}|undefined;
 let startupInfo={registered:false,enabled:false},startupWarning: string|null=null,preferencesQueue: Promise<void>=Promise.resolve();const pendingLaunches: string[][]=[],notifiedThisProcess=new Set<string>();
 const uiFile=path.join(runtimeRoot,'ui','index.html'),uiURL=pathToFileURL(uiFile).href;
 log('Acquiring instance lock');if(!app.requestSingleInstanceLock()){log('Another instance owns the app lock.');app.quit();}else{
@@ -81,7 +81,7 @@ async function start(){
  if(smoke){bridge=Object.assign(new EventEmitter(),{start:async()=>{},request:async()=>({ok:true}),close:async()=>{}});}
  else bridge=new NativeBridge(paths.native,path.join(app.getPath('userData'),'recovery'));
  bridge.on('failure',error=>log('Color engine failure: '+errorMessage(error)));
- controller=new Controller(bridge,new Store(path.join(app.getPath('userData'),'settings.json')));controller.on('state',publish);
+ controller=new Controller(bridge,new Store(path.join(app.getPath('userData'),'settings.json')));controller.on('state',()=>{publish();noteActive();});
  const colorsFile=path.join(app.getPath('userData'),'window-colors.json');let windowColors=loadWindowColors(colorsFile);
  log('Creating full window');window=new BrowserWindow({width:1020,height:760,minWidth:760,minHeight:620,show:false,title:'Screen Color',backgroundColor:windowColors.background,autoHideMenuBar:true,icon:icon(),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});log('Full window created');
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.webContents.on('will-navigate',(event,url)=>{if(url!==uiURL)event.preventDefault();});
@@ -124,10 +124,14 @@ async function start(){
  initialized=true;
  if(!process.argv.includes('--background')||controller.error){if(process.argv.includes('--full-app'))showWindow();else await showPopup(undefined,false);}
  for(const argv of pendingLaunches.splice(0))handleLaunch(argv);
- if(!smoke){updater.check().catch(error=>log(errorMessage(error)));updateTimer=setInterval(()=>updater.check().catch(error=>log(errorMessage(error))),6*60*60*1000);updateTimer.unref();}
+ if(!smoke){noteActive();const nudge=setTimeout(supportNudge,2*60*1000);nudge.unref();activeTimer=setInterval(()=>{noteActive();supportNudge();},60*60*1000);activeTimer.unref();updater.check().catch(error=>log(errorMessage(error)));updateTimer=setInterval(()=>updater.check().catch(error=>log(errorMessage(error))),6*60*60*1000);updateTimer.unref();}
  if(smoke)await runSmoke();
 }
+// Screen Color works from the tray, so a day with the effect on counts as a day of use.
+function noteActive(){if(smoke||!initialized||!controller?.state.enabled)return;try{experience.markActive();}catch(error){log('Active day: '+errorMessage(error));}}
+// After a week of active days, one thank-you notification for people who never open the full app.
+function supportNudge(){if(smoke||!experience.supportNudgeDue())return;try{if(!Notification.isSupported())return;const notification=new Notification({title:'A week of better colors',body:'Screen Color has kept your desktop looking right for a week. Thank you for using it!',silent:true});notification.on('click',showWindow);notification.on('failed',(_event,error)=>log('Support notification: '+error));notification.show();experience.markSupportNotified();}catch(error){log('Support notification unavailable: '+errorMessage(error));}}
 function notifyUpdate(){const update=updater.snapshot().available;if(smoke||!update||experience.snapshot().notifiedVersion===update.version||notifiedThisProcess.has(update.version))return;notifiedThisProcess.add(update.version);try{if(!Notification.isSupported())return;const notification=new Notification({title:'Screen Color update available',body:`Version ${update.version} is ready. Open Screen Color to download it.`,silent:true});notification.on('click',showWindow);notification.on('failed',(_event,error)=>log('Update notification: '+error));notification.show();try{experience.markNotified(update.version);}catch(error){log('Notification preference save: '+errorMessage(error));}}catch(error){log('Update notification unavailable: '+errorMessage(error));}}
 async function runSmoke(): Promise<void>{await runElectronSmoke({window,popup,controller,diagnosticsDir,log,showPopup,publish});}
-app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;clearTimeout(reapplyTimer);clearInterval(updateTimer);watcher?.close();globalShortcut.unregisterAll();Promise.resolve(controller?.close()).catch(console.error).finally(()=>{tray?.destroy();app.exit(Number(process.exitCode)||0);});});
+app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;clearTimeout(reapplyTimer);clearInterval(updateTimer);clearInterval(activeTimer);watcher?.close();globalShortcut.unregisterAll();Promise.resolve(controller?.close()).catch(console.error).finally(()=>{tray?.destroy();app.exit(Number(process.exitCode)||0);});});
 app.on('window-all-closed',()=>{if(!tray)app.quit();});
