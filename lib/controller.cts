@@ -56,7 +56,7 @@ export class Controller extends EventEmitter<{state: [ControllerSnapshot]}> {
         if(next.profiles.length>=100)throw new Error('You can save up to 100 profiles.');
         const p={id:randomUUID(),name:payload.trim(),values:{...next.values}};next.profiles.push(p);next.profileId=p.id;break;
       }
-      case 'deleteProfile':{const index=next.profiles.findIndex(p=>p.id===payload);if(index<0)throw new Error('Built-in profiles cannot be deleted.');next.profiles.splice(index,1);if(next.profileId===payload)next.profileId=null;break;}
+      case 'deleteProfile':{const index=next.profiles.findIndex(p=>p.id===payload);if(index<0)throw new Error(payload==='neutral'||payload==='reference'||FILTERS.some(p=>p.id===payload)?'Built-in profiles cannot be deleted.':'Profile not found.');next.profiles.splice(index,1);if(next.profileId===payload)next.profileId=null;break;}
       case 'preferences':if(!object(payload)||typeof payload.startup!=='boolean'||typeof payload.minimizeToTray!=='boolean')throw new Error('Invalid preferences.');next.preferences={startup:payload.startup,minimizeToTray:payload.minimizeToTray};break;
       case 'preview':previewRestore=this.previewUntil?this.previewRestore:this.desiredEnabled;next.enabled=true;changeEffect=true;break;
       case 'reapply':if(!this.state.enabled||!this.ready)return this.snapshot();changeEffect=true;break;
