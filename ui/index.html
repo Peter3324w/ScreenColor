@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' http://localhost:*; object-src 'none'; base-uri 'none'; form-action 'none'">
- <title>Screen Color</title><link rel="stylesheet" href="playtime-tokens.css"><link rel="stylesheet" href="style.css"><script src="playtime-appearance.js" defer></script><script src="icons.js" defer></script><script src="filter-presets.js" defer></script><script src="appearance.js" defer></script><script src="color-matrix.js" defer></script><script src="image-preview.js" defer></script><script src="app.js" defer></script>
+ <title>Screen Color</title><link rel="stylesheet" href="playtime-tokens.css"><link rel="stylesheet" href="style.css"><script src="playtime-appearance.js" defer></script><script src="icons.js" defer></script><script src="filter-presets.js" defer></script><script src="appearance.js" defer></script><script src="customise.js" defer></script><script src="color-matrix.js" defer></script><script src="image-preview.js" defer></script><script src="app.js" defer></script>
  <link rel="stylesheet" href="experience.css"><script src="experience.js" defer></script>
 </head>
 <body>
@@ -15,12 +15,17 @@
     <button class="nav-item" data-view="profiles"><span data-icon="Layer" aria-hidden="true"></span> Filters</button>
    </nav>
    <div class="sidebar-tools">
-    <button class="nav-item" data-view="settings" title="Settings"><span data-icon="Setting2" aria-hidden="true"></span>Settings</button>
-    <button class="nav-item" data-view="tips" title="Tips"><span data-icon="Lamp" aria-hidden="true"></span>Tips</button>
-    <button class="nav-item" data-view="feedback"><span data-icon="MessageQuestion" aria-hidden="true"></span>Feedback / Support</button>
     <button class="nav-item" data-support="help" title="Support Peter's work on Peter's Cave"><span data-icon="Heart" aria-hidden="true"></span>Help me</button>
-    <button id="sidebar-theme-toggle" class="nav-item" aria-expanded="false" aria-controls="sidebar-theme-panel"><span data-icon="Colorfilter" aria-hidden="true"></span>Theme</button>
-    <div id="sidebar-theme-panel" class="sidebar-theme-panel" hidden><div id="sidebar-theme-picker" role="group" aria-label="Sidebar app theme"></div><button class="text-button" data-view="settings">Custom accent in Settings</button></div>
+    <div id="sidebar-customise" class="sidebar-customise">
+     <div id="sidebar-customise-options" class="customise-pop" role="group" aria-label="Customise" hidden>
+      <button class="nav-item" data-view="feedback" title="Feedback / Support"><span data-icon="MessageQuestion" aria-hidden="true"></span>Feedback / Support</button>
+      <button class="nav-item" data-view="tips" title="Tips"><span data-icon="Lamp" aria-hidden="true"></span>Tips</button>
+      <div class="customise-theme"><button id="sidebar-theme-toggle" class="nav-item" title="Theme" aria-expanded="false" aria-controls="sidebar-theme-panel"><span data-icon="Colorfilter" aria-hidden="true"></span>Theme</button>
+      <div id="sidebar-theme-panel" class="sidebar-theme-panel" hidden><div id="sidebar-theme-picker" role="group" aria-label="Sidebar app theme"></div><button class="text-button" data-view="settings">Custom accent in Settings</button></div></div>
+      <button class="nav-item" data-view="settings" title="Settings"><span data-icon="Setting2" aria-hidden="true"></span>Settings</button>
+     </div>
+     <button id="sidebar-customise-button" class="nav-item nav-customise" title="Customise" aria-expanded="false" aria-controls="sidebar-customise-options"><span data-icon="Setting2" aria-hidden="true"></span>Customise</button>
+    </div>
     <p id="sidebar-support-error" class="form-error" role="alert" hidden></p>
    </div>
    <div class="sidebar-bottom"><span class="monitor-symbol" data-icon="Monitor" aria-hidden="true"></span><strong>All displays</strong><p id="display-info">Desktop color controls</p></div>
