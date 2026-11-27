@@ -6,6 +6,11 @@ import {createBrowserAPI} from './browser-api';
 (()=>{
  const api=window.screenColor;
  const welcome=$<HTMLDialogElement>('#welcome-dialog'),support=$<HTMLDialogElement>('#support-dialog'),tour=$<HTMLDialogElement>('#tour-dialog'),panel=$('.tour-panel',tour),spot=$('.tour-spotlight',tour);
+ // Welcome mascot (PlayTime's Pro-page character): a warm line per open, eyes that follow the pointer.
+ const QUOTES=['hi! welcome in~','oh, a new face! hi!','make yourself at home~','so glad you’re here!'];
+ $('#welcome-quote').textContent=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+ const mascot=welcome.querySelector('.pm-svg'),irises=[...welcome.querySelectorAll('.wm-iris')];
+ window.addEventListener('pointermove',event=>{if(!welcome.open||!mascot)return;const r=mascot.getBoundingClientRect();const gx=Math.max(-1,Math.min(1,(event.clientX-r.left-r.width/2)/300))*3.2,gy=Math.max(-1,Math.min(1,(event.clientY-r.top-r.height/2)/300))*3;for(const iris of irises)iris.setAttribute('transform',`translate(${gx.toFixed(2)} ${gy.toFixed(2)})`);},{passive:true});
  let state: ScreenColorSnapshot,step=0,working=false,scheduleTimer: ReturnType<typeof setTimeout>|undefined,returnFocus: Element|null=null,returnView: string|undefined,returnScroll=0;
  const steps: {title: string;body: string;view?: string;target?: string}[]=[
   {title:'Your screen, your look',body:'Screen Color adjusts every display together. This tour explains the controls without applying a filter or changing your settings.'},
