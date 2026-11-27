@@ -4,7 +4,9 @@ import {object} from '../lib/validation.cjs';
 (()=>{
  const design=window.PlaytimeDesign,key='screen-color-appearance';let saved: {theme: string;accent: string|null}={theme:'midnight',accent:null};
  try{const value: unknown=JSON.parse(localStorage.getItem(key)||'null');if(object(value)&&typeof value.theme==='string'&&design.THEMES.some(t=>t.id===value.theme)){saved={theme:value.theme,accent:typeof value.accent==='string'&&design.hexToRgb(value.accent)?value.accent:null};}}catch{}
- function apply(){design.applyAppearance(saved.theme,saved.accent);}
+ // Tell the main process the page grounds so the native window paints them too (no black flash on Light).
+ function tokenHex(name: string): string|null{const rgb=design.hexToRgb(getComputedStyle(document.documentElement).getPropertyValue(name).trim());return rgb?'#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join(''):null;}
+ function apply(){design.applyAppearance(saved.theme,saved.accent);const background=tokenHex('--bg'),surface=tokenHex('--surface');if(background&&surface)window.screenColor?.action('windowColors',{background,surface}).catch(()=>{});}
  apply();
  const picker=$('#theme-picker'),color=$<HTMLInputElement>('#accent-color'),hex=$<HTMLInputElement>('#accent-hex'),auto=$<HTMLButtonElement>('#accent-auto'),status=$('#appearance-status');
  function persist(){apply();try{localStorage.setItem(key,JSON.stringify(saved));status.textContent='Appearance saved on this device.';}catch{status.textContent='Appearance changed for this session; it could not be saved.';}render();}

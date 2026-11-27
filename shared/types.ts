@@ -47,6 +47,7 @@ export type ControllerArguments = {
     [type: K, payload?: undefined] : [type: K, payload: ControllerPayloads[K]]
 }[keyof ControllerPayloads];
 export type SupportDestination = 'help' | 'apps' | 'feedback' | 'issues';
+export type WindowColors = { background: string; surface: string };
 export type ActionPayloads = ControllerPayloads & {
   openSupport: SupportDestination;
   finishTour: undefined;
@@ -59,6 +60,7 @@ export type ActionPayloads = ControllerPayloads & {
   openPopup: undefined;
   hidePopup: undefined;
   pinPopup: boolean;
+  windowColors: WindowColors;
 };
 export type Action = {
   [K in keyof ActionPayloads]: { type: K; payload: ActionPayloads[K] }

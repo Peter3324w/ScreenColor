@@ -13,6 +13,7 @@ import {UpdateChecker} from '../lib/updates.cjs';
 import {StartupRegistration} from '../lib/startup.cjs';
 import {startupOptions as makeStartupOptions,runtimePaths} from '../lib/platform.cjs';
 import {object,errorMessage} from '../lib/validation.cjs';
+import {loadWindowColors,saveWindowColors,validateWindowColors} from '../lib/window-colors.cjs';
 import {runSmoke as runElectronSmoke} from './smoke.cjs';
 import type {ScreenColorSnapshot,ActionResult,Preferences} from '../shared/types';
 function details(error: unknown): string {return error instanceof Error?error.stack||error.message:String(error);}
@@ -81,11 +82,12 @@ async function start(){
  else bridge=new NativeBridge(paths.native,path.join(app.getPath('userData'),'recovery'));
  bridge.on('failure',error=>log('Color engine failure: '+errorMessage(error)));
  controller=new Controller(bridge,new Store(path.join(app.getPath('userData'),'settings.json')));controller.on('state',publish);
- log('Creating full window');window=new BrowserWindow({width:1020,height:760,minWidth:760,minHeight:620,show:false,title:'Screen Color',backgroundColor:'#000000',autoHideMenuBar:true,icon:icon(),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});log('Full window created');
+ const colorsFile=path.join(app.getPath('userData'),'window-colors.json');let windowColors=loadWindowColors(colorsFile);
+ log('Creating full window');window=new BrowserWindow({width:1020,height:760,minWidth:760,minHeight:620,show:false,title:'Screen Color',backgroundColor:windowColors.background,autoHideMenuBar:true,icon:icon(),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});log('Full window created');
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.webContents.on('will-navigate',(event,url)=>{if(url!==uiURL)event.preventDefault();});
  window.on('close',event=>{if(quitting)return;event.preventDefault();if(controller.state.preferences.minimizeToTray&&tray)window.hide();else app.quit();});
  window.on('focus',()=>{if(initialized){refreshStartup();publish();}});window.on('hide',()=>{if(initialized)publish();});
- popup=new Popup(runtimeRoot,publish);log('Popup window created');
+ popup=new Popup(runtimeRoot,publish,windowColors.surface);log('Popup window created');
  ipcMain.handle('screen-color:state',event=>{validateSender(event);return snapshot();});
  ipcMain.handle('screen-color:action',async(event,type: unknown,payload: unknown): Promise<ActionResult>=>{
   validateSender(event);try{
@@ -99,6 +101,7 @@ async function start(){
    if(type==='openFullApp'){showWindow();return {ok:true,state:snapshot()};}
    if(type==='openPopup'){await showPopup();return {ok:true,state:snapshot()};}
    if(type==='hidePopup'){popup.hide();return {ok:true,state:snapshot()};}
+   if(type==='windowColors'){const next=validateWindowColors(payload);window.setBackgroundColor(next.background);popup.window.setBackgroundColor(next.surface);if(next.background!==windowColors.background||next.surface!==windowColors.surface){windowColors=next;if(!smoke)saveWindowColors(colorsFile,next);}return {ok:true,state:snapshot()};}
    if(type==='pinPopup'){if(typeof payload!=='boolean')throw new Error('Invalid pin setting.');popup.setPinned(payload);return {ok:true,state:snapshot()};}
    if(type==='preferences'){
     if(!object(payload)||typeof payload.startup!=='boolean'||typeof payload.minimizeToTray!=='boolean')throw new Error('Invalid preferences.');

@@ -10,7 +10,7 @@ The published 0.1.2 installer contains unsupported Electron 33.4.11. The current
 
 Settings and profiles stay on your PC. Adjustments apply to all displays together, and quitting restores the original colors. Windows may show a SmartScreen warning because the installer is unsigned.
 
-The interface uses [PlayTime's design system](docs/design-system.md): its five themes, custom accent derivation, Iconsax icons, typography, spacing, glass surfaces and component styling. Choose a palette under Settings → Appearance.
+The interface uses [PlayTime's design system](docs/design-system.md): its six themes (five dark plus Light), custom accent derivation, Iconsax icons, typography, spacing, glass surfaces and component styling. Choose a palette under Settings → Appearance.
 
 ## Open the app
 
@@ -100,7 +100,7 @@ Source and implementation decisions: [design](docs/superpowers/specs/2026-11-16-
 
 The sidebar's **Feedback / Support** page links to the shared Peter's Cave feedback form and Screen Color reports in the app-feedback GitHub repository. **Help me** opens Peter's Cave's support page. Links open in the system browser; desktop IPC accepts only fixed destination IDs, never arbitrary URLs. Include Screen Color in the report; the deployed form's app selection has not been verified.
 
-The sidebar **Theme** picker offers Midnight, Graphite, Deep, Moss and Rose. It shares the Settings appearance preferences and persists locally. Custom accent colors remain in Settings.
+The sidebar **Theme** picker offers Midnight, Graphite, Deep, Moss, Rose and Light. Each window also opens in its theme's own background colour, so Light never flashes black on launch. It shares the Settings appearance preferences and persists locally. Custom accent colors remain in Settings.
 
 ## Filters and personal profiles
 
