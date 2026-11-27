@@ -299,3 +299,27 @@ dialog input { width: 100%; padding: 10px 13px; background: var(--glass); border
   #sidebar-theme-picker .theme-swatch { justify-content: center; min-width: 0; padding: 10px; font-size: 0; gap: 0 !important; }
   .sidebar-theme-panel > .text-button { display: none; }
 }
+
+/* ── Light theme: Screen Color's own rules ───────────────────────────────────
+   playtime-tokens.css moves the ground; these are the literals in this file
+   that a token can't reach. */
+.theme-chip[data-palette=light] { background: #f4f4f1; }
+/* The white primary buttons are white in every dark theme whatever the accent;
+   on paper their twin is ink. */
+:root[data-theme='light'] #open-quick-controls,
+:root[data-theme='light'] .browse-more-filters { background: #121211; color: #ffffff; border-color: #121211; }
+:root[data-theme='light'] #open-quick-controls:hover:not(:disabled),
+:root[data-theme='light'] .browse-more-filters:hover { background: #2c2c29; border-color: #2c2c29; }
+/* Black shadows turn muddy on paper; keep the lift, lose the smoke. */
+:root[data-theme='light'] button.accent-button { box-shadow: 0 6px 18px rgb(24 24 20 / .16); }
+:root[data-theme='light'] dialog { box-shadow: 0 20px 70px rgb(24 24 20 / .18); }
+:root[data-theme='light'] .image-preview { box-shadow: 0 10px 24px rgb(24 24 20 / .08), var(--glass-glow); }
+/* Labels that sit on a wallpaper keep Midnight's values, as PlayTime does over
+   cover art: the ground there is the picture, not the page. */
+:root[data-theme='light'] :is(.preview-badge, .filter-selected) {
+  --text: #ffffff;
+  --stroke: rgb(255 255 255 / 0.12);
+  --accent: #ffffff;
+  --on-accent: #000000;
+  --glass-strong: rgba(0, 0, 0, 0.55);
+}

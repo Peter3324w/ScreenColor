@@ -6,7 +6,8 @@ Peter requested the complete PlayTime visual language on 16 November 2026: color
 
 Read-only source: neighboring `../Playtime` checkout, `dev` at `a85c4b52b9fee1c759c8688910abf1c1c5a0ab20`. PlayTime has unrelated in-progress work; none of its files were edited. Imported style/util files were unchanged in its working tree.
 
-- `src/renderer/src/styles/00-base.css`: exact token/theme prefix copied to `ui/playtime-tokens.css`, including the original source comments. Midnight, Graphite, Deep, Moss and Rose retain their complete neutral ramps, accent/on-accent pairs, wash/stroke/glass tokens, chart colors and semantic greens/reds.
+- `src/renderer/src/styles/00-base.css`: exact token/theme prefix copied to `ui/playtime-tokens.css`, including the original source comments. Midnight, Graphite, Deep, Moss, Rose and Light retain their complete neutral ramps, accent/on-accent pairs, wash/stroke/glass tokens, chart colors and semantic greens/reds.
+- Light also needs Screen Color's own overrides for literals the tokens cannot reach (white primary buttons, black shadows, labels over wallpaper images). They live at the end of `ui/style.css`; re-check them whenever a new light theme is synced.
 - `src/renderer/src/lib/util.js`: theme/accent helper section copied to `ui/playtime-appearance.js`, including lightness floors, contrast-aware text, green/danger hue separation, and Auto accent behavior. Only module exports were adapted for the existing browser/CommonJS setup.
 - `styles/05-sidebar.css`: 224px desktop sidebar; 11px active navigation radius; 11px/14px row padding; 13px icon gap; 14px navigation type; 16px/12px brand hierarchy. Narrow Screen Color windows retain their supported compact layout instead of inheriting PlayTime's unrelated 940px minimum window requirement.
 - `styles/06-shell-chrome.css`: 30px/700 page titles, 24px page spacing, 10px buttons, primary 10px/18px padding, secondary 9px/15px glass controls, inset sheens and state transitions.

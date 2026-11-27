@@ -5,7 +5,10 @@ const THEMES = [
   { id: 'graphite', label: 'Graphite', dot: '#e8b075' },
   { id: 'deep', label: 'Deep', dot: '#7c9cff' },
   { id: 'moss', label: 'Moss', dot: '#8ce563' },
-  { id: 'rose', label: 'Rose', dot: '#f472b6' }
+  { id: 'rose', label: 'Rose', dot: '#f472b6' },
+  // Light's accent is ink, which would vanish as a dot in a dark menu, so its
+  // swatch shows the paper ground instead.
+  { id: 'light', label: 'Light', dot: '#f4f4f1' }
 ]
 
 // Midnight is the default and carries no attribute, so an unknown or missing

@@ -105,6 +105,10 @@
   --glass-glow: inset 0 0 20px rgb(var(--wash-rgb) / 0.03), inset 0 1px 0 rgb(var(--wash-rgb) / 0.05);
 
   --radius: 16px;
+  /* How strongly a background picture shows behind a card's text (the friend
+     profile's "Playing now"). Over black a third reads as dimmed; over Light's
+     paper the same third reads as washed out, so Light raises it. */
+  --art-dim: 0.34;
 }
 
 /* ── Themes ────────────────────────────────────────────────────────────────
@@ -252,4 +256,71 @@
      the periwinkle instead of cutting across it. */
   --green-rgb: 63 217 168;
   --on-green: #04140e;
+}
+
+:root[data-theme='light'] {
+  /* The one light ground. It costs a block like the others only because the
+     washes are tokens now: --wash-rgb goes dark, so every card fill, hover and
+     hairline becomes ink on paper instead of light on black. The floor is a
+     warm off-white rather than #fff so cards and popovers (white) can still
+     sit ON it. Selected things invert to ink: the light twin of Midnight. */
+  color-scheme: light;
+  --bg: #f4f4f1;
+  --surface: #fbfbf9;
+  --card: #ffffff;
+  --card-2: #ecece8;
+  --text: #121211;
+  --text-2: #2a2a27;
+  --muted: #6b6b66;
+  --wash-rgb: 24 24 20;
+  --text-rgb: 18 18 17;
+  --stroke: rgb(var(--wash-rgb) / 0.12);
+  --stroke-soft: rgb(var(--wash-rgb) / 0.07);
+  --accent: #121211;
+  --accent-2: #121211;
+  --on-accent: #ffffff;
+  --on-accent-soft: rgba(255, 255, 255, 0.7);
+  --on-accent-mute: #9a9a94;
+  --accent-hover: #2c2c29;
+  --data: #121211;
+  --data-rgb: 18 18 17;
+  /* Darker green and red: the dark themes' versions are too pale to read as
+     text or a dot on a light page. */
+  --green-rgb: 22 163 74;
+  --on-green: #ffffff;
+  --danger-rgb: 220 38 38;
+  --on-danger: #ffffff;
+  /* Glass on paper is frosted white, not smoked black. */
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass-strong: rgba(255, 255, 255, 0.82);
+  --art-dim: 1;
+}
+
+/* Over game artwork the ground is the picture, and artwork is dark: covers sit
+   under a dark scrim so white text reads. On Light those zones keep Midnight's
+   values instead of turning to ink: the Home hero, and every cover card's
+   hover overlay and badges (Library, Home, Discover). Add a zone here when it
+   sits on a picture. The one deliberate rule outside a theme
+   block: it isn't a theme choice, it's what artwork is. Derived tokens
+   (--stroke, --glass-glow) are restated because they resolve where declared. */
+:root[data-theme='light'] :is(.hero, .poster-overlay, .poster-tag, .poster-source, .poster-fav, .poster-dots, .poster-loading, .dc-flag) {
+  /* Inherited text (the title has no colour of its own) took the page's ink
+     before these tokens existed here, so set it again for the zone. */
+  color: var(--text);
+  --text: #ffffff;
+  --text-2: #f5f5f5;
+  --muted: #c4c4c4;
+  --text-rgb: 255 255 255;
+  --wash-rgb: 255 255 255;
+  --stroke: rgb(255 255 255 / 0.12);
+  --stroke-soft: rgb(255 255 255 / 0.07);
+  --accent: #ffffff;
+  --accent-2: #ffffff;
+  --on-accent: #000000;
+  --on-accent-soft: rgba(0, 0, 0, 0.55);
+  --on-accent-mute: #8a8a8a;
+  --accent-hover: #e6e6e6;
+  --glass: rgba(0, 0, 0, 0.35);
+  --glass-strong: rgba(0, 0, 0, 0.55);
+  --glass-glow: inset 0 0 20px rgb(255 255 255 / 0.03), inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
