@@ -43,7 +43,7 @@ import {createBrowserAPI} from './browser-api';
  $<HTMLButtonElement>('#dismiss-update').addEventListener('click',async()=>{try{await action('dismissUpdate');}catch(error){$('#update-banner-detail').textContent=message(error);}});$<HTMLButtonElement>('#check-updates').addEventListener('click',async()=>{try{await action('checkUpdates');}catch(error){$('#update-status').textContent=message(error);}});
  new MutationObserver(queue).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});document.addEventListener('visibilitychange',queue);
  if(api){api.subscribe(update);api.getState().then(update).catch(error=>{$('#update-status').textContent=message(error);});}else createBrowserAPI().getState().then(next=>{update(next);
-  // Browser preview only: ?dialog=welcome or ?dialog=support opens a first-run prompt for design review.
-  const ask=new URLSearchParams(location.search).get('dialog');if(ask==='welcome')welcome.showModal();else if(ask==='support')support.showModal();});
+  // Browser preview only: ?dialog=welcome plays the first run (welcome, then support); ?dialog=support opens support alone.
+  const ask=new URLSearchParams(location.search).get('dialog');if(ask==='welcome'){const next=()=>{if(tour.open){tour.addEventListener('close',next,{once:true});return;}if(!support.open)support.showModal();};welcome.addEventListener('close',()=>setTimeout(next,200),{once:true});welcome.showModal();}else if(ask==='support')support.showModal();});
  window.ScreenIcons.paint();
 })();
