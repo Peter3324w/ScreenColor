@@ -8,7 +8,7 @@ test('settings apply only after acknowledgment and failures disable the reported
 test('presets and named profiles persist, protected presets cannot be deleted',async()=>{
  const {c,store}=setup();await c.init();await c.dispatch('preset','reference');await c.dispatch('saveProfile','My wallpaper');const id=c.snapshot().profileId;
  assert.equal(store.state.profiles[0].name,'My wallpaper');await c.dispatch('preset','neutral');await c.dispatch('preset',id);assert.deepEqual(c.snapshot().values,REFERENCE);
- await assert.rejects(c.dispatch('deleteProfile','reference'));await c.dispatch('deleteProfile',id);assert.equal(c.snapshot().profiles.length,0);await c.close();
+ await assert.rejects(c.dispatch('deleteProfile','reference'),/Built-in profiles cannot be deleted/);await assert.rejects(c.dispatch('deleteProfile','missing-id'),/Profile not found/);await c.dispatch('deleteProfile',id);assert.equal(c.snapshot().profiles.length,0);await c.close();
 });
 test('effect toggle preserves sliders; updates serialize and settings failure resets native',async()=>{
  const {c,bridge,store}=setup();await c.init();await Promise.all([c.dispatch('values',REFERENCE),c.dispatch('toggle',false)]);assert.equal(c.snapshot().enabled,false);assert.deepEqual(c.snapshot().values,REFERENCE);assert.equal(bridge.calls.at(-1).command,'reset');

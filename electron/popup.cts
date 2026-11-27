@@ -9,9 +9,9 @@ export class Popup {
   window: BrowserWindow;
   ready: Promise<void>;
   blurTimer: ReturnType<typeof setTimeout>|undefined;
-  constructor(root: string,public onState: ()=>void){
+  constructor(root: string,public onState: ()=>void,background='#000000'){
     this.url=pathToFileURL(path.join(root,'ui/popup.html')).href;
-    this.window=new BrowserWindow({width:364,height:548,show:false,frame:false,resizable:false,maximizable:false,minimizable:false,skipTaskbar:true,alwaysOnTop:true,title:'Screen Color quick controls',backgroundColor:'#000000',webPreferences:{preload:path.join(root,'electron/preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+    this.window=new BrowserWindow({width:364,height:548,show:false,frame:false,resizable:false,maximizable:false,minimizable:false,skipTaskbar:true,alwaysOnTop:true,title:'Screen Color quick controls',backgroundColor:background,webPreferences:{preload:path.join(root,'electron/preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
     this.window.webContents.setWindowOpenHandler(()=>({action:'deny'}));this.window.webContents.on('will-navigate',(event,url)=>{if(url!==this.url)event.preventDefault();});
     this.window.on('close',event=>{event.preventDefault();this.hide();});
     this.window.on('blur',()=>{clearTimeout(this.blurTimer);this.blurTimer=setTimeout(()=>{if(!this.pinned&&!this.window.isDestroyed()&&!this.window.isFocused())this.hide();},160);});

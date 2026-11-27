@@ -18,7 +18,7 @@ static class ColorHost {
  static bool Same(Effect a,Effect b){for(int i=0;i<25;i++)if(Math.Abs(a.Values[i]-b.Values[i])>.00002)return false;return true;}
  static void Apply(Effect effect){Check(MagSetFullscreenColorEffect(ref effect),"Apply color effect");Effect actual;Check(MagGetFullscreenColorEffect(out actual),"Read color effect");if(!Same(effect,actual))throw new Exception("Windows did not retain the color effect. Try closing other color tools.");}
  static void Restore(){lock(Gate){if(captured)Apply(baseline);}}
- static void Save(string file,Effect e){string temp=file+".tmp";using(var w=new BinaryWriter(File.Create(temp))){w.Write(Process.GetCurrentProcess().Id);foreach(var v in e.Values)w.Write(v);}if(File.Exists(file))File.Delete(file);File.Move(temp,file);}
+ static void Save(string file,Effect e){string temp=file+".tmp";using(var w=new BinaryWriter(File.Create(temp))){w.Write(Process.GetCurrentProcess().Id);foreach(var v in e.Values)w.Write(v);}if(File.Exists(file))File.Replace(temp,file,null);else File.Move(temp,file);}
  static Effect Load(string file,out int owner){var e=Identity();using(var r=new BinaryReader(File.OpenRead(file))){owner=r.ReadInt32();for(int i=0;i<25;i++)e.Values[i]=r.ReadSingle();}return e;}
  static bool Acquire(Mutex mutex,int timeout){try{return mutex.WaitOne(timeout);}catch(AbandonedMutexException){return true;}}
  static float Value(Dictionary<string,object> values,string key,float min,float max){object raw;if(!values.TryGetValue(key,out raw)||raw is bool||raw is string||raw==null)throw new Exception("Invalid "+key);float n=Convert.ToSingle(raw);if(float.IsNaN(n)||float.IsInfinity(n)||n<min||n>max)throw new Exception("Out of range: "+key);return n;}
