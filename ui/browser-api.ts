@@ -4,10 +4,10 @@ import filters = require('../shared/filter-presets.cjs');
 import { supportURL } from '../lib/support.cjs';
 import type { ScreenColorAPI,ScreenColorSnapshot } from '../shared/types';
 export function createInitialState(): ScreenColorSnapshot {
-  return {...defaultState(),version:'0.1.2',ready:true,error:null,warning:null,previewUntil:null,popupPinned:false,
+  return {...defaultState(),version:'0.1.3',ready:true,error:null,warning:null,previewUntil:null,popupPinned:false,
     startupActual:false,startupWarning:null,shortcutAvailable:false,development:true,smoke:false,workspaceVisible:true,experiencePrompts:false,displays:[],
     experience:{version:1,launches:0,tourDone:false,supportDismissed:false,supportDue:false,notifiedVersion:null,dismissedVersion:null},
-    updates:{current:'0.1.2',status:'idle',available:null,error:null,checkedAt:null}};
+    updates:{current:'0.1.3',status:'idle',available:null,error:null,checkedAt:null}};
 }
 export function createBrowserAPI(): ScreenColorAPI {
   let state=createInitialState();

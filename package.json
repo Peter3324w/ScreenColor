@@ -1,7 +1,7 @@
 {
   "name": "screen-color",
   "productName": "Screen Color",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "license": "MIT",
   "description": "Live desktop color adjustments with saved profiles and compact tray controls",
