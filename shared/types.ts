@@ -46,7 +46,7 @@ export type ControllerArguments = {
   [K in keyof ControllerPayloads]: ControllerPayloads[K] extends undefined ?
     [type: K, payload?: undefined] : [type: K, payload: ControllerPayloads[K]]
 }[keyof ControllerPayloads];
-export type SupportDestination = 'help' | 'apps' | 'feedback' | 'issues';
+export type SupportDestination = 'help' | 'apps' | 'feedback' | 'issues' | 'guide';
 export type WindowColors = { background: string; surface: string };
 export type ActionPayloads = ControllerPayloads & {
   openSupport: SupportDestination;

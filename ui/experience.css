@@ -38,3 +38,16 @@
 .wm-eye-open{transform-box:fill-box;transform-origin:center;animation:wm-blink 4.2s infinite}
 @keyframes wm-blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
 @media(max-width:620px){.mascot-layout{grid-template-columns:minmax(0,1fr)}.mascot-panel{border-right:0;border-bottom:1px solid var(--stroke-soft);padding:62px 14px 12px}.mascot-panel .pm-svg{width:120px}.mascot-dialog .experience-dialog-body{padding:24px 26px 22px}}
+
+/* Welcome: Take the tour and Skip for now side by side; help (Peter's Cave) top-right. */
+.mascot-actions{justify-content:flex-start}
+.welcome-help{position:absolute;top:12px;right:12px}
+/* After Skip: the pointer at Tips. */
+.tips-pointer-layer{position:fixed;inset:0;z-index:1000;pointer-events:none}
+.tips-ring{position:fixed;border-radius:12px;box-shadow:0 0 0 2px var(--accent);animation:tips-ring 1.6s ease-in-out infinite}
+@keyframes tips-ring{50%{box-shadow:0 0 0 5px rgb(var(--wash-rgb)/.12),0 0 0 2px var(--accent)}}
+.tips-pointer{position:fixed;translate:0 -50%;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 8px;border-radius:16px;background:var(--bg);border:1px solid var(--stroke);box-shadow:0 18px 50px rgba(0,0,0,.5);pointer-events:auto;animation:pm-pop .32s cubic-bezier(.3,1.6,.5,1) both}
+.tips-pointer::before{content:'';position:absolute;left:-7px;top:50%;translate:0 -50%;border:7px solid transparent;border-right-color:var(--stroke);border-left:0}
+.tips-pointer-mascot{width:56px}.tips-pointer-mascot .pm-svg{width:100%;height:auto;display:block;overflow:visible}
+.tips-pointer-text{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted);max-width:210px}
+.tips-pointer-text strong{font-size:14px;color:var(--text)}
